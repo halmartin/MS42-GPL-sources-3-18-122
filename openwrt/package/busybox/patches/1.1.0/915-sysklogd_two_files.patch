@@ -1,0 +1,187 @@
+diff -ruNbp busybox/sysklogd/syslogd.c busybox-1.1.0/sysklogd/syslogd.c
+--- busybox/sysklogd/syslogd.c	2006-12-07 02:40:16.000000000 -0800
++++ busybox-1.1.0/sysklogd/syslogd.c	2006-12-07 02:40:40.000000000 -0800
+@@ -58,19 +58,24 @@
+ /* Path to the unix socket */
+ static char lfile[MAXPATHLEN];
+ 
+-static const char *logFilePath = __LOG_FILE;
++static int logFileCount = 0;
++
++static const char *logFilePath[2] = {__LOG_FILE,};
+ 
+ #ifdef CONFIG_FEATURE_ROTATE_LOGFILE
+ /* max size of message file before being rotated */
+-static int logFileSize = 200 * 1024;
++static int logFileSize[2] = {204800, 204800};
+ 
+ /* number of rotated message files */
+-static int logFileRotate = 1;
++static int logFileRotate[2] = {1,1};
+ #endif
+ 
+ /* interval between marks in seconds */
+ static int MarkInterval = 20 * 60;
+ 
++/* level of messages to be locally logged */
++static int logLevel[2] = {8,8};
++
+ /* localhost's name */
+ static char LocalHostName[64];
+ 
+@@ -297,8 +302,8 @@ static void circ_message(const char *msg
+ 
+ /* Note: There is also a function called "message()" in init.c */
+ /* Print a message to the log file. */
+-static void message(char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+-static void message(char *fmt, ...)
++static void message(int logNum, char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
++static void message(int logNum, char *fmt, ...)
+ {
+ 	int fd;
+ 	struct flock fl;
+@@ -319,31 +324,31 @@ static void message(char *fmt, ...)
+ 
+ 	} else
+ #endif
+-	if ((fd = device_open(logFilePath,
++	if ((fd = device_open(logFilePath[logNum],
+ 					O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND |
+ 							 O_NONBLOCK)) >= 0) {
+ 		fl.l_type = F_WRLCK;
+ 		fcntl(fd, F_SETLKW, &fl);
+ #ifdef CONFIG_FEATURE_ROTATE_LOGFILE
+-		if ( logFileSize > 0 ) {
++		if ( logFileSize[logNum] > 0 ) {
+ 			struct stat statf;
+ 			int r = fstat(fd, &statf);
+ 			if( !r && (statf.st_mode & S_IFREG)
+-				&& (lseek(fd,0,SEEK_END) > logFileSize) ) {
+-				if(logFileRotate > 0) {
++				&& (lseek(fd,0,SEEK_END) > logFileSize[logNum]) ) {
++				if(logFileRotate[logNum] > 0) {
+ 					int i;
+-					char oldFile[(strlen(logFilePath)+4)], newFile[(strlen(logFilePath)+4)];
+-					for(i=logFileRotate-1;i>0;i--) {
+-						sprintf(oldFile, "%s.%d", logFilePath, i-1);
+-						sprintf(newFile, "%s.%d", logFilePath, i);
++					char oldFile[(strlen(logFilePath[logNum])+4)], newFile[(strlen(logFilePath[logNum])+4)];
++					for(i=logFileRotate[logNum]-1;i>0;i--) {
++						sprintf(oldFile, "%s.%d", logFilePath[logNum], i-1);
++						sprintf(newFile, "%s.%d", logFilePath[logNum], i);
+ 						rename(oldFile, newFile);
+ 					}
+-					sprintf(newFile, "%s.%d", logFilePath, 0);
++					sprintf(newFile, "%s.%d", logFilePath[logNum], 0);
+ 					fl.l_type = F_UNLCK;
+ 					fcntl (fd, F_SETLKW, &fl);
+ 					close(fd);
+-					rename(logFilePath, newFile);
+-					fd = device_open (logFilePath,
++					rename(logFilePath[logNum], newFile);
++					fd = device_open (logFilePath[logNum],
+ 						   O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND |
+ 						   O_NONBLOCK);
+ 					fl.l_type = F_WRLCK;
+@@ -457,11 +462,16 @@ static void logMessage(int pri, char *ms
+ 	if (local_logging == TRUE)
+ #endif
+ 	{
++		int logNum;
++		for (logNum = 0; logNum < logFileCount; logNum++) {
+ 		/* now spew out the message to wherever it is supposed to go */
++			if (pri == 0 || LOG_PRI(pri) < logLevel[logNum]) {
+ 		if (small)
+-			message("%s %s\n", timestamp, msg);
++					message(logNum, "%s %s\n", timestamp, msg);
+ 		else
+-			message("%s %s %s %s\n", timestamp, LocalHostName, res, msg);
++					message(logNum, "%s %s %s %s\n", timestamp, LocalHostName, res, msg);
++			}
++		}
+ 	}
+ }
+ 
+@@ -624,7 +634,7 @@ extern int syslogd_main(int argc, char *
+ 	char *p;
+ 
+ 	/* do normal option parsing */
+-	while ((opt = getopt(argc, argv, "m:nO:s:Sb:R:LC::")) > 0) {
++	while ((opt = getopt(argc, argv, "m:no:O:l:L:s:S:Qb:B:R:gC::")) > 0) {
+ 		switch (opt) {
+ 		case 'm':
+ 			MarkInterval = atoi(optarg) * 60;
+@@ -632,16 +642,41 @@ extern int syslogd_main(int argc, char *
+ 		case 'n':
+ 			doFork = FALSE;
+ 			break;
++		case 'o':
++			logFilePath[0] = optarg;
++			break;
+ 		case 'O':
+-			logFilePath = optarg;
++			logFileCount = 2;
++			logFilePath[1] = optarg;
++			break;
++		case 'l':
++			logLevel[0] = atoi(optarg);
++			/* Valid levels are between 1 and 8 */
++			if (logLevel[0] < 1 || logLevel[0] > 8) {
++				bb_show_usage();
++			}
++			break;
++		case 'L':
++			logLevel[1] = atoi(optarg);
++			/* Valid levels are between 1 and 8 */
++			if (logLevel[1] < 1 || logLevel[1] > 8) {
++				bb_show_usage();
++			}
+ 			break;
+ #ifdef CONFIG_FEATURE_ROTATE_LOGFILE
+ 		case 's':
+-			logFileSize = atoi(optarg) * 1024;
++			logFileSize[0] = atoi(optarg) * 1024;
++			break;
++		case 'S':
++			logFileSize[1] = atoi(optarg) * 1024;
+ 			break;
+ 		case 'b':
+-			logFileRotate = atoi(optarg);
+-			if( logFileRotate > 99 ) logFileRotate = 99;
++			logFileRotate[0] = atoi(optarg);
++			if( logFileRotate[0] > 99 ) logFileRotate[0] = 99;
++			break;
++		case 'B':
++			logFileRotate[1] = atoi(optarg);
++			if( logFileRotate[1] > 99 ) logFileRotate[1] = 99;
+ 			break;
+ #endif
+ #ifdef CONFIG_FEATURE_REMOTE_LOG
+@@ -653,7 +688,7 @@ extern int syslogd_main(int argc, char *
+ 			}
+ 			doRemoteLog = TRUE;
+ 			break;
+-		case 'L':
++		case 'g':
+ 			local_logging = TRUE;
+ 			break;
+ #endif
+@@ -668,7 +703,7 @@ extern int syslogd_main(int argc, char *
+ 			circular_logging = TRUE;
+ 			break;
+ #endif
+-		case 'S':
++		case 'Q':
+ 			small = true;
+ 			break;
+ 		default:
+@@ -676,6 +711,9 @@ extern int syslogd_main(int argc, char *
+ 		}
+ 	}
+ 
++	if (logFileCount == 0)
++		logFileCount++;
++
+ #ifdef CONFIG_FEATURE_REMOTE_LOG
+ 	/* If they have not specified remote logging, then log locally */
+ 	if (doRemoteLog == FALSE)

@@ -1,0 +1,10 @@
+--- busybox-1.1.0.orig/libbb/procps.c	2011-06-20 20:48:47.395196999 -0700
++++ busybox-1.1.0/libbb/procps.c	2011-06-20 20:35:52.567196999 -0700
+@@ -12,7 +12,6 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <asm/page.h>
+ 
+ #include "libbb.h"
+ 

@@ -1,0 +1,322 @@
+commit 4bf3b324f00e6525b8c53a9937ba46e3ce571da1
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Wed Jun 24 13:06:24 2015 -0700
+
+    Add F_GETPIPE_SZ and F_SETPIPE_SZ fcntl operations
+    
+    From upstream commit cae2aea39ad66d2a929d0ba4e08ff167ae9fbc9a
+
+diff --git a/libc/sysdeps/linux/alpha/bits/fcntl.h b/libc/sysdeps/linux/alpha/bits/fcntl.h
+index 649c563..1e567e7 100644
+--- a/libc/sysdeps/linux/alpha/bits/fcntl.h
++++ b/libc/sysdeps/linux/alpha/bits/fcntl.h
+@@ -95,6 +95,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* for F_[GET|SET]FD */
+diff --git a/libc/sysdeps/linux/arm/bits/fcntl.h b/libc/sysdeps/linux/arm/bits/fcntl.h
+index 7cc5a9d..cb16155 100644
+--- a/libc/sysdeps/linux/arm/bits/fcntl.h
++++ b/libc/sysdeps/linux/arm/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/bfin/bits/fcntl.h b/libc/sysdeps/linux/bfin/bits/fcntl.h
+index f019b71..5bf5226 100644
+--- a/libc/sysdeps/linux/bfin/bits/fcntl.h
++++ b/libc/sysdeps/linux/bfin/bits/fcntl.h
+@@ -99,6 +99,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/cris/bits/fcntl.h b/libc/sysdeps/linux/cris/bits/fcntl.h
+index 29443ba..380e07e 100644
+--- a/libc/sysdeps/linux/cris/bits/fcntl.h
++++ b/libc/sysdeps/linux/cris/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/e1/bits/fcntl.h b/libc/sysdeps/linux/e1/bits/fcntl.h
+index a9cb722..695a851 100644
+--- a/libc/sysdeps/linux/e1/bits/fcntl.h
++++ b/libc/sysdeps/linux/e1/bits/fcntl.h
+@@ -94,6 +94,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/frv/bits/fcntl.h b/libc/sysdeps/linux/frv/bits/fcntl.h
+index d437175..19f9689 100644
+--- a/libc/sysdeps/linux/frv/bits/fcntl.h
++++ b/libc/sysdeps/linux/frv/bits/fcntl.h
+@@ -96,6 +96,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/h8300/bits/fcntl.h b/libc/sysdeps/linux/h8300/bits/fcntl.h
+index c8aeb91..ef70435 100644
+--- a/libc/sysdeps/linux/h8300/bits/fcntl.h
++++ b/libc/sysdeps/linux/h8300/bits/fcntl.h
+@@ -94,6 +94,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/hppa/bits/fcntl.h b/libc/sysdeps/linux/hppa/bits/fcntl.h
+index 86e3b6f..b735e6f 100644
+--- a/libc/sysdeps/linux/hppa/bits/fcntl.h
++++ b/libc/sysdeps/linux/hppa/bits/fcntl.h
+@@ -97,6 +97,8 @@
+ # define F_NOTIFY       1026    /* Request notfications on a directory.  */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* for F_[GET|SET]FL */
+diff --git a/libc/sysdeps/linux/i386/bits/fcntl.h b/libc/sysdeps/linux/i386/bits/fcntl.h
+index 22e073b..591bc19 100644
+--- a/libc/sysdeps/linux/i386/bits/fcntl.h
++++ b/libc/sysdeps/linux/i386/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/i960/bits/fcntl.h b/libc/sysdeps/linux/i960/bits/fcntl.h
+index 696f961..0bd6e0e 100644
+--- a/libc/sysdeps/linux/i960/bits/fcntl.h
++++ b/libc/sysdeps/linux/i960/bits/fcntl.h
+@@ -94,6 +94,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/ia64/bits/fcntl.h b/libc/sysdeps/linux/ia64/bits/fcntl.h
+index 85a55f6..06ea895 100644
+--- a/libc/sysdeps/linux/ia64/bits/fcntl.h
++++ b/libc/sysdeps/linux/ia64/bits/fcntl.h
+@@ -96,6 +96,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/m68k/bits/fcntl.h b/libc/sysdeps/linux/m68k/bits/fcntl.h
+index e564b42..41a55ac 100644
+--- a/libc/sysdeps/linux/m68k/bits/fcntl.h
++++ b/libc/sysdeps/linux/m68k/bits/fcntl.h
+@@ -99,6 +99,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/microblaze/bits/fcntl.h b/libc/sysdeps/linux/microblaze/bits/fcntl.h
+index 44e8f3f..7ec8a6d 100644
+--- a/libc/sysdeps/linux/microblaze/bits/fcntl.h
++++ b/libc/sysdeps/linux/microblaze/bits/fcntl.h
+@@ -99,8 +99,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
+-# define F_SETPIPE_SZ	1031	/* Set of pipe page size array */
+-# define F_GETPIPE_SZ	1032	/* Get of pipe page size array */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/mips/bits/fcntl.h b/libc/sysdeps/linux/mips/bits/fcntl.h
+index f0072fd..5c68467 100644
+--- a/libc/sysdeps/linux/mips/bits/fcntl.h
++++ b/libc/sysdeps/linux/mips/bits/fcntl.h
+@@ -112,6 +112,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/nios/bits/fcntl.h b/libc/sysdeps/linux/nios/bits/fcntl.h
+index 0656dd6..a496ba0 100644
+--- a/libc/sysdeps/linux/nios/bits/fcntl.h
++++ b/libc/sysdeps/linux/nios/bits/fcntl.h
+@@ -97,6 +97,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/nios2/bits/fcntl.h b/libc/sysdeps/linux/nios2/bits/fcntl.h
+index e564b42..41a55ac 100644
+--- a/libc/sysdeps/linux/nios2/bits/fcntl.h
++++ b/libc/sysdeps/linux/nios2/bits/fcntl.h
+@@ -99,6 +99,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/powerpc/bits/fcntl.h b/libc/sysdeps/linux/powerpc/bits/fcntl.h
+index 0759c6a..45f4f1c 100644
+--- a/libc/sysdeps/linux/powerpc/bits/fcntl.h
++++ b/libc/sysdeps/linux/powerpc/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/sh/bits/fcntl.h b/libc/sysdeps/linux/sh/bits/fcntl.h
+index adb7377..c1ff3c7 100644
+--- a/libc/sysdeps/linux/sh/bits/fcntl.h
++++ b/libc/sysdeps/linux/sh/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/sh64/bits/fcntl.h b/libc/sysdeps/linux/sh64/bits/fcntl.h
+index 156df97..63dc569 100644
+--- a/libc/sysdeps/linux/sh64/bits/fcntl.h
++++ b/libc/sysdeps/linux/sh64/bits/fcntl.h
+@@ -96,6 +96,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/sparc/bits/fcntl.h b/libc/sysdeps/linux/sparc/bits/fcntl.h
+index 31a6d9b..532f061 100644
+--- a/libc/sysdeps/linux/sparc/bits/fcntl.h
++++ b/libc/sysdeps/linux/sparc/bits/fcntl.h
+@@ -107,6 +107,8 @@
+ # define F_NOTIFY       1026	/* Request notfications on a directory.  */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ #if __WORDSIZE == 64
+diff --git a/libc/sysdeps/linux/v850/bits/fcntl.h b/libc/sysdeps/linux/v850/bits/fcntl.h
+index c8aeb91..ef70435 100644
+--- a/libc/sysdeps/linux/v850/bits/fcntl.h
++++ b/libc/sysdeps/linux/v850/bits/fcntl.h
+@@ -94,6 +94,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/vax/bits/fcntl.h b/libc/sysdeps/linux/vax/bits/fcntl.h
+index 66c2812..5a6ff7b 100644
+--- a/libc/sysdeps/linux/vax/bits/fcntl.h
++++ b/libc/sysdeps/linux/vax/bits/fcntl.h
+@@ -93,6 +93,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FL.  */
+diff --git a/libc/sysdeps/linux/x86_64/bits/fcntl.h b/libc/sysdeps/linux/x86_64/bits/fcntl.h
+index f1cf388..9da924e 100644
+--- a/libc/sysdeps/linux/x86_64/bits/fcntl.h
++++ b/libc/sysdeps/linux/x86_64/bits/fcntl.h
+@@ -114,6 +114,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */
+diff --git a/libc/sysdeps/linux/xtensa/bits/fcntl.h b/libc/sysdeps/linux/xtensa/bits/fcntl.h
+index 921a626..6a3315f 100644
+--- a/libc/sysdeps/linux/xtensa/bits/fcntl.h
++++ b/libc/sysdeps/linux/xtensa/bits/fcntl.h
+@@ -100,6 +100,8 @@
+ # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+ # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+ 				   close-on-exit set on new fd.  */
++# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
++# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
+ #endif
+ 
+ /* For F_[GET|SET]FD.  */

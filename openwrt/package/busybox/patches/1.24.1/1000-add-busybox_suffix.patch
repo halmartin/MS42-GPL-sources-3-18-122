@@ -1,0 +1,46 @@
+--- a/Makefile	2012-08-28 12:42:19.125656028 -0700
++++ b/Makefile	2012-08-28 13:00:50.783318473 -0700
+@@ -524,11 +524,13 @@
+ include/autoconf.h: ;
+ endif
+ 
++export BUSYBOX_NAME = busybox$(BUSYBOX_SUFFIX)
++
+ # The all: target is the default when no target is given on the
+ # command line.
+ # This allow a user to issue only 'make' to build a kernel including modules
+ # Defaults busybox but it is usually overridden in the arch makefile
+-all: busybox doc
++all: $(BUSYBOX_NAME) doc
+ 
+ -include $(srctree)/arch/$(ARCH)/Makefile
+ 
+@@ -711,16 +713,16 @@
+ endif # ifdef CONFIG_KALLSYMS
+ 
+ # busybox image - including updated kernel symbols
+-busybox_unstripped: $(busybox-all) FORCE
++$(BUSYBOX_NAME)_unstripped: $(busybox-all) FORCE
+ 	$(call if_changed_rule,busybox__)
+ 	$(Q)rm -f .old_version
+ 
+-busybox: busybox_unstripped
++$(BUSYBOX_NAME): $(BUSYBOX_NAME)_unstripped
+ ifeq ($(SKIP_STRIP),y)
+ 	$(Q)cp $< $@
+ else
+ 	$(Q)$(STRIP) -s --remove-section=.note --remove-section=.comment \
+-		busybox_unstripped -o $@
++		$< -o $@
+ # strip is confused by PIE executable and does not set exec bits
+ 	$(Q)chmod a+x $@
+ endif
+@@ -1243,7 +1245,7 @@
+ 
+ PHONY += checkstack
+ checkstack:
+-	$(OBJDUMP) -d busybox $$(find . -name '*.ko') | \
++	$(OBJDUMP) -d $(BUSYBOX_NAME) $$(find . -name '*.ko') | \
+ 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
+ 
+ kernelrelease:

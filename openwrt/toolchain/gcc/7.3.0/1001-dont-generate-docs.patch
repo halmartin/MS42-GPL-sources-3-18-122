@@ -1,0 +1,32 @@
+commit b472ce9de741a4be072c9722369d8107862952a3
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Tue Nov 7 10:04:49 2017 -0800
+
+    Don't waste time building docs
+
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+index f675e07..f8a6fff 100644
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -1865,10 +1865,10 @@ config.status: $(srcdir)/configure $(srcdir)/config.gcc
+ quickstrap: all
+ 	cd $(toplevel_builddir) && $(MAKE) all-target-libgcc
+ 
+-all.internal: start.encap rest.encap doc selftest
++all.internal: start.encap rest.encap selftest
+ # This is what to compile if making a cross-compiler.
+ all.cross: native gcc-cross$(exeext) cpp$(exeext) specs \
+-	libgcc-support lang.all.cross doc selftest @GENINSRC@ srcextra
++	libgcc-support lang.all.cross selftest @GENINSRC@ srcextra
+ # This is what must be made before installing GCC and converting libraries.
+ start.encap: native xgcc$(exeext) cpp$(exeext) specs \
+ 	libgcc-support lang.start.encap @GENINSRC@ srcextra
+@@ -3353,7 +3353,7 @@ maintainer-clean:
+ # Install the driver last so that the window when things are
+ # broken is small.
+ install: install-common $(INSTALL_HEADERS) \
+-    install-cpp install-man install-info install-@POSUB@ \
++    install-cpp install-@POSUB@ \
+     install-driver install-lto-wrapper install-gcc-ar
+ 
+ ifeq ($(enable_plugin),yes)

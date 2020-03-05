@@ -1,0 +1,11 @@
+diff -ur busybox-1.20.2-orig//networking/ping.c busybox-1.20.2/networking/ping.c
+--- busybox-1.20.2-orig//networking/ping.c	2012-06-26 06:35:45.000000000 -0700
++++ busybox-1.20.2/networking/ping.c	2012-08-17 10:05:11.318364252 -0700
+@@ -674,6 +674,7 @@
+ 	}
+ 
+ 	signal(SIGINT, print_stats_and_exit);
++	fflush(stdout);
+ 
+ 	/* start the ping's going ... */
+ 	sendping4(0);

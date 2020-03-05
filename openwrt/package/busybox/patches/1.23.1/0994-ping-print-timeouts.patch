@@ -1,0 +1,78 @@
+commit 7494eddb47c4f39fe42e32adf121c220b217666a
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Thu Jan 15 14:22:09 2015 -0800
+
+    0994
+
+diff --git a/networking/ping.c b/networking/ping.c
+index 05ba485..97f80cd 100644
+--- a/networking/ping.c
++++ b/networking/ping.c
+@@ -103,6 +103,7 @@
+ //usage:     "\n	-q		Quiet, only display output at start"
+ //usage:     "\n			and when finished"
+ //usage:     "\n	-p		Pattern to use for payload"
++//usage:     "\n	-T		Print timeouts"
+ //usage:
+ //usage:# define ping6_trivial_usage
+ //usage:       "[OPTIONS] HOST"
+@@ -332,7 +333,7 @@ static int common_ping_main(sa_family_t af, char **argv)
+ 
+ /* Full(er) version */
+ 
+-#define OPT_STRING ("qvc:s:t:w:W:I:np:4" IF_PING6("6"))
++#define OPT_STRING ("qvc:s:t:w:W:I:np:T4" IF_PING6("6"))
+ enum {
+ 	OPT_QUIET = 1 << 0,
+ 	OPT_VERBOSE = 1 << 1,
+@@ -344,8 +345,9 @@ enum {
+ 	OPT_I = 1 << 7,
+ 	/*OPT_n = 1 << 8, - ignored */
+ 	OPT_p = 1 << 9,
+-	OPT_IPV4 = 1 << 10,
+-	OPT_IPV6 = (1 << 11) * ENABLE_PING6,
++	OPT_T = 1 << 10,
++	OPT_IPV4 = 1 << 11,
++	OPT_IPV6 = (1 << 12) * ENABLE_PING6,
+ };
+ 
+ 
+@@ -365,6 +367,8 @@ struct globals {
+ 	unsigned timeout;
+ 	unsigned total_secs;
+ 	unsigned sizeof_rcv_packet;
++	unsigned print_timeouts;
++	unsigned last_recv_seq;
+ 	char *rcv_packet; /* [datalen + MAXIPLEN + MAXICMPLEN] */
+ 	void *snd_packet; /* [datalen + ipv4/ipv6_const] */
+ 	const char *hostname;
+@@ -447,6 +451,11 @@ static void sendping_tail(void (*sp)(int), int size_pkt)
+ {
+ 	int sz;
+ 
++	if (G.print_timeouts && G.ntransmitted != 0 && G.last_recv_seq != G.ntransmitted - 1) {
++		printf("Request timeout for icmp seq %u\n", (unsigned)(G.ntransmitted - 1));
++		fflush(stdout);
++	}
++
+ 	CLR((uint16_t)G.ntransmitted % MAX_DUP_CHK);
+ 	G.ntransmitted++;
+ 
+@@ -605,6 +614,7 @@ static void unpack_tail(int sz, uint32_t *tp,
+ 		*b |= m;
+ 		++G.nreceived;
+ 		dupmsg += 7;
++		G.last_recv_seq = recv_seq;
+ 	}
+ 
+ 	if (option_mask32 & OPT_QUIET)
+@@ -874,7 +884,8 @@ static int common_ping_main(int opt, char **argv)
+ 	}
+ 	if (opt & OPT_p)
+ 		G.pattern = xstrtou_range(str_p, 16, 0, 255);
+-
++	if (opt & OPT_T)
++		G.print_timeouts = 1;
+ 	myid = (uint16_t) getpid();
+ 	hostname = argv[optind];
+ #if ENABLE_PING6

@@ -1,0 +1,19 @@
+commit 9622d0e5cae39d1b7e0620c20c47bd1539a03bb3
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Thu Sep 15 13:09:19 2016 -0700
+
+    200-no_forced_unwind.patch
+
+diff --git a/Rules.mak b/Rules.mak
+index 8d0e66a..0db318c 100644
+--- a/Rules.mak
++++ b/Rules.mak
+@@ -710,7 +710,7 @@ endif
+ ifeq ($(UCLIBC_HAS_THREADS),y)
+ ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
+ 	PTNAME := nptl
+-	CFLAGS += -DHAVE_FORCED_UNWIND -D_LIBC_REENTRANT
++	CFLAGS += -D_LIBC_REENTRANT
+ else
+ ifeq ($(UCLIBC_HAS_LINUXTHREADS),y)
+ 	PTNAME := linuxthreads

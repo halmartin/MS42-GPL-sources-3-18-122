@@ -1,0 +1,55 @@
+diff -u -r busybox-1.1.0/include/usage.h busybox-1.1.0-xyu/include/usage.h
+--- busybox-1.1.0-old/include/usage.h	2008-10-22 21:55:22.000000000 -0700
++++ busybox-1.1.0/include/usage.h	2008-10-22 13:28:45.000000000 -0700
+@@ -2525,11 +2525,12 @@
+ 	"Returns the absolute pathnames of given argument."
+ 
+ #define reboot_trivial_usage \
+-	"[-d<delay>]"
++	"[-d<delay>] [-r<reason_string>]"
+ #define reboot_full_usage \
+ 	"Reboot the system.\n" \
+ 	"Options:\n" \
+-	"\t-d\t\tdelay interval for rebooting"
++	"\t-d\t\tdelay interval for rebooting\n" \
++	"\t-r\t\treason for rebooting"
+ 
+ #define renice_trivial_usage \
+ 	"{{-n INCREMENT} | PRIORITY} [[ -p | -g | -u ] ID ...]"
+diff -u -r busybox-1.1.0/init/reboot.c busybox-1.1.0-xyu/init/reboot.c
+--- busybox-1.1.0-old/init/reboot.c	2006-01-10 21:44:17.000000000 -0800
++++ busybox-1.1.0/init/reboot.c	2008-10-22 22:05:34.000000000 -0700
+@@ -27,14 +27,31 @@
+ #include <sys/reboot.h>
+ #include "busybox.h"
+ #include "init_shared.h"
++#ifdef CONFIG_SYSLOGD
++# include <sys/syslog.h>
++#endif
+ 
+ 
+ extern int reboot_main(int argc, char **argv)
+ {
+-	char *delay; /* delay in seconds before rebooting */
++	char *delay = NULL; /* delay in seconds before rebooting */
++	char *reason = NULL; /* optional reason for reboot */
++	char * wdog_file = "/storage/watchdog_last.status";
++	FILE *fp = NULL;
++	unsigned long flags;
+ 
+-	if(bb_getopt_ulflags(argc, argv, "d:", &delay)) {
++	flags = bb_getopt_ulflags(argc, argv, "d:r:", &delay, &reason);
++	if (delay)
+ 		sleep(atoi(delay));
++#ifdef CONFIG_SYSLOGD
++	openlog(bb_applet_name, 0, LOG_DAEMON);
++	syslog(LOG_ALERT, "### reboot command [%s] ###", (reason ? reason : "sbin_reboot"));
++	closelog();
++#endif
++	/* Write the reboot reason only if there is not an existing watchdog report */
++	if (access(wdog_file, F_OK) && (fp = fopen(wdog_file, "w"))) {
++		fprintf(fp, "reason: %s\n", (reason ? reason : "sbin_reboot"));
++		fclose(fp);
+ 	}
+ 
+ #ifndef CONFIG_INIT

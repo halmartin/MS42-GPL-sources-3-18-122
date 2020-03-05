@@ -1,0 +1,10 @@
+--- busybox-1.1.0/networking/ping.c	2006-01-10 21:43:51.000000000 -0800
++++ busybox-1.1.0-new/networking/ping.c	2011-07-01 11:42:26.908788098 -0700
+@@ -353,6 +353,7 @@
+ 		   datalen);
+ 
+ 	signal(SIGINT, pingstats);
++	fflush(stdout);
+ 
+ 	/* start the ping's going ... */
+ 	sendping(0);

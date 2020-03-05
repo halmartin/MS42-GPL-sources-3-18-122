@@ -1,0 +1,121 @@
+From a574fef89c347c3fb12ec37a40ad22e83ef812a9 Mon Sep 17 00:00:00 2001
+From: Justin Delegard <jdizzle@meraki.net>
+Date: Mon, 2 Jun 2014 10:31:03 -0700
+Subject: [PATCH] add outfile option to patch
+
+---
+ editors/patch.c | 41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
+
+diff --git a/editors/patch.c b/editors/patch.c
+index 13785ef..c8a478f 100644
+--- a/editors/patch.c
++++ b/editors/patch.c
+@@ -13,7 +13,6 @@
+  * -l treat all whitespace as a single space
+  * -d chdir first
+  * -D define wrap #ifdef and #ifndef around changes
+- * -o outfile output here instead of in place
+  * -r rejectfile write rejected hunks to this file
+  * --dry-run (regression!)
+  *
+@@ -49,6 +48,7 @@
+ //usage:     "\n	-R	Reverse patch"
+ //usage:     "\n	-N	Ignore already applied patches"
+ //usage:     "\n	-E	Remove output files if they become empty"
++//usage:     "\n	-o      outfile output here instead of in place"
+ //usage:	)
+ /* -u "interpret as unified diff" is supported but not documented: this info is not useful for --help */
+ /* -x "debug" is supported but does nothing */
+@@ -123,7 +123,7 @@ struct globals {
+ } while (0)
+ 
+ 
+-#define FLAG_STR "Rup:i:NEx"
++#define FLAG_STR "Rup:i:NExo:"
+ /* FLAG_REVERSE must be == 1! Code uses this fact. */
+ #define FLAG_REVERSE (1 << 0)
+ #define FLAG_u       (1 << 1)
+@@ -133,6 +133,7 @@ struct globals {
+ #define FLAG_RMEMPTY (1 << 5)
+ /* Enable this bit and use -x for debug output: */
+ #define FLAG_DEBUG   (0 << 6)
++#define FLAG_OUTFILE (1 << 7)
+ 
+ // Dispose of a line of input, either by writing it out or discarding it.
+ 
+@@ -159,16 +160,17 @@ static void do_line(void *data)
+ 
+ static void finish_oldfile(void)
+ {
+-	if (TT.tempname) {
+-		// Copy the rest of the data and replace the original with the copy.
+-		char *temp;
++	// Copy the rest of the data
+ 
+-		if (TT.filein != -1) {
+-			bb_copyfd_eof(TT.filein, TT.fileout);
+-			xclose(TT.filein);
+-		}
++	if (TT.filein != -1) {
++		bb_copyfd_eof(TT.filein, TT.fileout);
++		xclose(TT.filein);
+ 		xclose(TT.fileout);
++	}
+ 
++	if (TT.tempname) {
++		//replace the original with the copy.
++		char *temp;
+ 		temp = xstrdup(TT.tempname);
+ 		temp[strlen(temp) - 6] = '\0';
+ 		rename(TT.tempname, temp);
+@@ -198,9 +200,11 @@ static void fail_hunk(void)
+ 	// Abort the copy and delete the temporary file.
+ 	close(TT.filein);
+ 	close(TT.fileout);
+-	unlink(TT.tempname);
+-	free(TT.tempname);
+-	TT.tempname = NULL;
++	if (TT.tempname) {
++		unlink(TT.tempname);
++		free(TT.tempname);
++		TT.tempname = NULL;
++	}
+ 
+ 	TT.state = 0;
+ }
+@@ -352,13 +356,13 @@ int patch_main(int argc UNUSED_PARAM, char **argv)
+ 	int opts;
+ 	int reverse, state = 0;
+ 	char *oldname = NULL, *newname = NULL;
+-	char *opt_p, *opt_i;
++	char *opt_p, *opt_i, *opt_o;
+ 	long oldlen = oldlen; /* for compiler */
+ 	long newlen = newlen; /* for compiler */
+ 
+ 	INIT_TT();
+ 
+-	opts = getopt32(argv, FLAG_STR, &opt_p, &opt_i);
++	opts = getopt32(argv, FLAG_STR, &opt_p, &opt_i, &opt_o);
+ 	argv += optind;
+ 	reverse = opts & FLAG_REVERSE;
+ 	TT.prefix = (opts & FLAG_PATHLEN) ? xatoi(opt_p) : 0; // can be negative!
+@@ -521,8 +525,13 @@ int patch_main(int argc UNUSED_PARAM, char **argv)
+ 						TT.filein = xopen(name, O_RDONLY);
+ 					}
+ 
+-					TT.tempname = xasprintf("%sXXXXXX", name);
+-					TT.fileout = xmkstemp(TT.tempname);
++					if (option_mask32 & FLAG_OUTFILE) {
++						TT.tempname = NULL;
++						TT.fileout = xopen(opt_o, O_CREAT|O_EXCL|O_RDWR);
++					} else {
++						TT.tempname = xasprintf("%sXXXXXX", name);
++						TT.fileout = xmkstemp(TT.tempname);
++					}
+ 					// Set permissions of output file
+ 					fstat(TT.filein, &statbuf);
+ 					fchmod(TT.fileout, statbuf.st_mode);
+-- 
+1.8.3.2
+

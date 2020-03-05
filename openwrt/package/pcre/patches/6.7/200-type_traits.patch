@@ -1,0 +1,19 @@
+diff -u -r pcre-6.7-old/pcre_stringpiece.h.in pcre-6.7/pcre_stringpiece.h.in
+--- pcre-6.7-old/pcre_stringpiece.h.in	2006-07-05 04:28:01.000000000 -0700
++++ pcre-6.7/pcre_stringpiece.h.in	2007-02-12 01:22:17.000000000 -0800
+@@ -42,14 +42,6 @@
+ #include <string>
+ #include <iosfwd>    // for ostream forward-declaration
+ 
+-#if @pcre_have_type_traits@
+-#define HAVE_TYPE_TRAITS
+-#include <type_traits.h>
+-#elif @pcre_have_bits_type_traits@
+-#define HAVE_TYPE_TRAITS
+-#include <bits/type_traits.h>
+-#endif
+-
+ using std::string;
+ 
+ namespace pcrecpp {
+Only in pcre-6.7: pcre_stringpiece.h.in~

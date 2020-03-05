@@ -1,0 +1,21 @@
+--- busybox-1.1.0-old/shell/cmdedit.c	2006-01-10 21:44:00.000000000 -0800
++++ busybox-1.1.0/shell/cmdedit.c	2007-05-12 15:43:08.000000000 -0700
+@@ -1835,7 +1835,9 @@
+ #if MAX_HISTORY >= 1
+ 	/* Handle command history log */
+ 	/* cleanup may be saved current command line */
+-	if (len> 0) {                                      /* no put empty line */
++	if (len> 0 &&
++            (n_history == 0 ||
++             strcmp(history[n_history - 1], command) != 0)) {
+ 		int i = n_history;
+ 
+ 		free(history[MAX_HISTORY]);
+@@ -1853,6 +1855,7 @@
+ 		num_ok_lines++;
+ #endif
+ 	}
++        cur_history = n_history;
+ #else  /* MAX_HISTORY < 1 */
+ #if defined(CONFIG_FEATURE_SH_FANCY_PROMPT)
+ 	if (len > 0) {              /* no put empty line */

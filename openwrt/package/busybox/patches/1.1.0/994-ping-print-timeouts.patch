@@ -1,0 +1,51 @@
+--- a/networking/ping.c	2011-07-03 10:52:50.613815674 -0700
++++ b/networking/ping.c	2011-07-03 11:00:39.434746561 -0700
+@@ -158,6 +158,8 @@
+ static int pingsock = -1;
+ static int datalen; /* intentionally uninitialized to work around gcc bug */
+ static char *interface = NULL;
++static int print_timeouts = 0;
++static int last_recv_seq = -1;
+ 
+ static long ntransmitted, nreceived, nrepeats, pingcount;
+ static int myid, options;
+@@ -207,6 +209,11 @@
+ 	int i;
+ 	char packet[datalen + sizeof(struct icmp)];
+ 
++	if (print_timeouts && ntransmitted != 0 && last_recv_seq != ntransmitted - 1) {
++		printf("Request timeout for icmp seq %u\n", ntransmitted - 1);
++		fflush(stdout);
++	}
++
+ 	pkt = (struct icmp *) packet;
+ 
+ 	pkt->icmp_type = ICMP_ECHO;
+@@ -306,6 +313,7 @@
+ 		} else {
+ 			SET(recv_seq % MAX_DUP_CHK);
+ 			dupflag = 0;
++			last_recv_seq = recv_seq;
+ 		}
+ 
+ 		if (options & O_QUIET)
+@@ -420,6 +428,9 @@
+ 		thisarg = *argv;
+ 		thisarg++;
+ 		switch (*thisarg) {
++		case 'T':
++			print_timeouts = 1;
++			break;
+ 		case 'q':
+ 			options |= O_QUIET;
+ 			break;
+--- busybox-1.1.0.orig/include/usage.h	2011-07-03 10:52:50.613815674 -0700
++++ busybox-1.1.0/include/usage.h	2011-07-03 21:15:57.155334991 -0700
+@@ -2381,6 +2381,7 @@
+ 	"\t-c COUNT\tSend only COUNT pings\n" \
+ 	"\t-s SIZE\t\tSend SIZE data bytes in packets (default=56)\n" \
+         "\t-i INTERFACE\tSend pings using net device INTERFACE\n" \
++        "\t-T\t\tPrint timeouts\n" \
+ 	"\t-q\t\tQuiet mode, only displays output at start\n" \
+ 	"\t\t\tand when finished"
+ #endif

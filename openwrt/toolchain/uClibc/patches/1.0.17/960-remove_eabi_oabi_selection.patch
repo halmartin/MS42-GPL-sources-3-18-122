@@ -1,0 +1,43 @@
+commit b2913339fd2047bab03005ea2b6fe6a334265775
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Thu Sep 15 13:22:27 2016 -0700
+
+    960-remove_eabi_oabi_selection.patch
+    
+    We just use whatever ABI the compiler was built for.
+
+diff --git a/extra/Configs/Config.arm b/extra/Configs/Config.arm
+index 0d02e3f..82f528c 100644
+--- a/extra/Configs/Config.arm
++++ b/extra/Configs/Config.arm
+@@ -13,14 +13,3 @@ config FORCE_OPTIONS_FOR_ARCH
+ 	select ARCH_ANY_ENDIAN
+ 	select ARCH_HAS_UCONTEXT
+ 	select ARCH_HAS_DEPRECATED_SYSCALLS
+-
+-config CONFIG_ARM_EABI
+-	bool "Build for EABI"
+-	help
+-	  If you say 'y' here, functions and constants required by the
+-	  ARM EABI will be built into the library.  You should say 'y'
+-	  if your compiler uses the ARM EABI, in which case you will also
+-	  need a kernel supporting the EABI system call interface.
+-
+-	  If you say 'n' here, then the library will be built for the
+-	  old Linux ABI.
+diff --git a/libc/sysdeps/linux/arm/bits/uClibc_arch_features.h b/libc/sysdeps/linux/arm/bits/uClibc_arch_features.h
+index 671afd3..59163ef 100644
+--- a/libc/sysdeps/linux/arm/bits/uClibc_arch_features.h
++++ b/libc/sysdeps/linux/arm/bits/uClibc_arch_features.h
+@@ -72,11 +72,6 @@
+ # define __need_uClibc_config_h
+ # include <bits/uClibc_config.h>
+ # undef __need_uClibc_config_h
+-# if defined __CONFIG_ARM_EABI__ && !defined __ARM_EABI__
+-#  error Your toolchain does not support EABI
+-# elif !defined __CONFIG_ARM_EABI__ && defined __ARM_EABI__
+-#  error Your toolchain was built for EABI, but you have chosen OABI
+-# endif
+ #endif
+ 
+ #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */

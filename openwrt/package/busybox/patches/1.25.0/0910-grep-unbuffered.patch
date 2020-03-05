@@ -1,0 +1,45 @@
+diff -ur busybox-1.24.1-orig/findutils/grep.c busybox-1.24.1/findutils/grep.c
+--- busybox-1.24.1-orig/findutils/grep.c	2012-06-26 06:35:45.000000000 -0700
++++ busybox-1.24.1/findutils/grep.c	2013-08-27 17:35:06.237360531 -0700
+@@ -87,6 +87,7 @@
+ //usage:     "\n	-w	Match whole words only"
+ //usage:     "\n	-x	Match whole lines only"
+ //usage:     "\n	-F	PATTERN is a literal (not regexp)"
++//usage:     "\n	-u	Use line buffered output"
+ //usage:	IF_FEATURE_GREP_EGREP_ALIAS(
+ //usage:     "\n	-E	PATTERN is an extended regexp"
+ //usage:	)
+@@ -114,7 +115,7 @@
+ //usage:#define fgrep_full_usage ""
+ 
+ #define OPTSTR_GREP \
+-	"lnqvscFiHhe:f:Lorm:wx" \
++	"lnqvscFiuHhe:f:Lorm:wx" \
+ 	IF_FEATURE_GREP_CONTEXT("A:B:C:") \
+ 	IF_FEATURE_GREP_EGREP_ALIAS("E") \
+ 	IF_EXTRA_COMPAT("z") \
+@@ -130,6 +131,7 @@
+ 	OPTBIT_c, /* count matches per file (suppresses normal output) */
+ 	OPTBIT_F, /* literal match */
+ 	OPTBIT_i, /* case-insensitive */
++	OPTBIT_u, /* line buffered output */
+ 	OPTBIT_H, /* force filename display */
+ 	OPTBIT_h, /* inhibit filename display */
+ 	OPTBIT_e, /* -e PATTERN */
+@@ -153,6 +155,7 @@
+ 	OPT_c = 1 << OPTBIT_c,
+ 	OPT_F = 1 << OPTBIT_F,
+ 	OPT_i = 1 << OPTBIT_i,
++	OPT_u = 1 << OPTBIT_u,
+ 	OPT_H = 1 << OPTBIT_H,
+ 	OPT_h = 1 << OPTBIT_h,
+ 	OPT_e = 1 << OPTBIT_e,
+@@ -663,6 +666,8 @@
+ 	getopt32(argv, OPTSTR_GREP,
+ 		&pattern_head, &fopt, &max_matches);
+ #endif
++	if ((option_mask32 & OPT_u) != 0)
++		setlinebuf(stdout);
+ 	invert_search = ((option_mask32 & OPT_v) != 0); /* 0 | 1 */
+ 
+ 	{	/* convert char **argv to grep_list_data_t */

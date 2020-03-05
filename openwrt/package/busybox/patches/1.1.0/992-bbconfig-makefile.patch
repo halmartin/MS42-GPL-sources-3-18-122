@@ -1,0 +1,12 @@
+--- busybox-1.1.0/Makefile.orig	2007-07-05 15:28:13.000000000 -0700
++++ busybox-1.1.0/Makefile	2007-07-05 15:29:29.000000000 -0700
+@@ -315,7 +315,8 @@
+ 	@$(top_builddir)/scripts/config/conf -o $(CONFIG_CONFIG_IN)
+ 
+ include/bb_config.h: include/config.h
+-	@echo -e "#ifndef BB_CONFIG_H\n#define BB_CONFIG_H" > $@
++	@echo "#ifndef BB_CONFIG_H" > $@
++	@echo "#define BB_CONFIG_H" >> $@
+ 	@sed -e 's/#undef CONFIG_\(.*\)/#define ENABLE_\1 0/' \
+ 	    -e 's/#define CONFIG_\(.*\)/#define CONFIG_\1\n#define ENABLE_\1/' \
+ 		< $< >> $@

@@ -1,0 +1,10 @@
+--- busybox-1.1.0-old/Makefile	2012-06-01 15:01:48.248192545 -0700
++++ busybox-1.1.0/Makefile	2012-06-01 15:06:06.956200538 -0700
+@@ -213,6 +213,7 @@
+ 
+ busybox: .depend $(libraries-y)
+ 	$(CC) $(EXTRA_CFLAGS) $(LDFLAGS) -o $@ -Wl,--start-group $(libraries-y) $(LIBRARIES) -Wl,--end-group
++	$(CC) $(EXTRA_CFLAGS) $(LDFLAGS) --static -o $@.static -Wl,--start-group $(libraries-y) $(LIBRARIES) -Wl,--end-group
+ 
+ busybox.links: $(top_srcdir)/applets/busybox.mkll include/bb_config.h $(top_srcdir)/include/applets.h
+ 	- $(SHELL) $^ >$@

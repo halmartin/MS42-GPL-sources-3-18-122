@@ -1,0 +1,18 @@
+commit 29087787e0c53b580d37baa631a9e8c1c40e71f5
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Thu Sep 15 13:07:00 2016 -0700
+
+    131-inet-fix-__read_etc_hosts_r-segfault.patch
+
+diff --git a/libc/inet/resolv.c b/libc/inet/resolv.c
+index d380d44..7764a76 100644
+--- a/libc/inet/resolv.c
++++ b/libc/inet/resolv.c
+@@ -1657,6 +1657,7 @@ int __read_etc_hosts_r(
+ 	 * struct in[6]_addr
+ 	 * char line_buffer[BUFSZ+];
+ 	 */
++	memset(buf, 0, buflen);
+ 	parser->data = buf;
+ 	parser->data_len = aliaslen;
+ 	parser->line_len = buflen - aliaslen;

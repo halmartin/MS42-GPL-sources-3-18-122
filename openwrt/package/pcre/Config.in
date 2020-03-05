@@ -1,0 +1,28 @@
+config BR2_COMPILE_PCRE
+	tristate
+	default n
+	depends BR2_PACKAGE_LIBPCRE
+
+config BR2_PACKAGE_LIBPCRE
+	prompt "libpcre........................... A Perl Compatible Regular Expression library"
+	tristate
+	default m if CONFIG_DEVEL
+	select BR2_COMPILE_PCRE
+	help
+	  A Perl Compatible Regular Expression library
+	  
+	  http://www.pcre.org/
+
+choice
+	prompt "PCRE version" if BR2_PACKAGE_LIBPCRE
+	default BR2_PACKAGE_LIBPCRE_8
+	depends BR2_PACKAGE_LIBPCRE
+	help
+	  Use 6.7 for ar531x
+
+	config BR2_PACKAGE_LIBPCRE_6_7
+		bool "PCRE 6.7"
+
+	config BR2_PACKAGE_LIBPCRE_8
+		bool "PCRE 8.xx"
+endchoice

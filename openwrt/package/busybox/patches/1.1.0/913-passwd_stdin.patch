@@ -1,0 +1,110 @@
+--- busybox.original/loginutils/passwd.c	2006-06-14 15:54:00.000000000 -0700
++++ busybox-1.1.0/loginutils/passwd.c	2006-06-14 16:27:41.000000000 -0700
+@@ -17,7 +17,7 @@
+ static char crypt_passwd[128];
+ 
+ static int create_backup(const char *backup, FILE * fp);
+-static int new_password(const struct passwd *pw, int amroot, int algo);
++static int new_password(const struct passwd *pw, int amroot, int algo, int sflg);
+ static void set_filesize_limit(int blocks);
+ 
+ 
+@@ -146,14 +146,17 @@ extern int passwd_main(int argc, char **
+ 	int lflg = 0;				/* -l - lock account */
+ 	int uflg = 0;				/* -u - unlock account */
+ 	int dflg = 0;				/* -d - delete password */
++	int sflg = 0;                           /* -s - read pass from stdin */
+ 	const struct passwd *pw;
+ 
++
++
+ #ifdef CONFIG_FEATURE_SHADOWPASSWDS
+ 	const struct spwd *sp;
+ #endif							/* CONFIG_FEATURE_SHADOWPASSWDS */
+ 	amroot = (getuid() == 0);
+ 	openlog("passwd", LOG_PID | LOG_CONS | LOG_NOWAIT, LOG_AUTH);
+-	while ((flag = getopt(argc, argv, "a:dlu")) != EOF) {
++	while ((flag = getopt(argc, argv, "a:dlus")) != EOF) {
+ 		switch (flag) {
+ 		case 'a':
+ 			algo = get_algo(optarg);
+@@ -167,6 +170,9 @@ extern int passwd_main(int argc, char **
+ 		case 'u':
+ 			uflg++;
+ 			break;
++		case 's':
++			sflg++;
++			break;
+ 		default:
+ 			bb_show_usage();
+ 		}
+@@ -209,8 +215,10 @@ extern int passwd_main(int argc, char **
+ 				bb_error_msg_and_die( "The password for `%s' cannot be changed.\n", np);
+ 			}
+ 		}
++		if (!sflg) {
+ 		printf("Changing password for %s\n", name);
+-		if (new_password(pw, amroot, algo)) {
++		}
++		if (new_password(pw, amroot, algo, sflg)) {
+ 			bb_error_msg_and_die( "The password for %s is unchanged.\n", name);
+ 		}
+ 	} else if (lflg) {
+@@ -240,7 +248,9 @@ extern int passwd_main(int argc, char **
+ 	if (!update_passwd(pw, crypt_passwd)) {
+ 		syslog(LOG_INFO, "password for `%s' changed by user `%s'", name,
+ 			   myname);
++		if (!sflg) {
+ 		printf("Password changed.\n");
++		}
+ 	} else {
+ 		syslog(LOG_WARNING, "an error occurred updating the password file");
+ 		bb_error_msg_and_die("An error occurred updating the password file.\n");
+@@ -319,7 +329,7 @@ static char *crypt_make_salt(void)
+ }
+ 
+ 
+-static int new_password(const struct passwd *pw, int amroot, int algo)
++static int new_password(const struct passwd *pw, int amroot, int algo, int sflag)
+ {
+ 	char *clear;
+ 	char *cipher;
+@@ -347,6 +357,17 @@ static int new_password(const struct pas
+ 	} else {
+ 		orig[0] = '\0';
+ 	}
++	if (sflag) {
++		int i = bb_full_read(STDIN_FILENO, pass, sizeof(pass) - 1);
++		if (i < 1) {
++			return 1;
++		}
++		if (i == 1) {
++			fprintf(stderr, "Cannot be a blank password\n");
++			return 1;
++		}
++		pass[i - 1] = '\0';
++	} else {
+ 	if (! (cp=bb_askpass(0, "Enter the new password (minimum of 5 characters)\n"
+ 					  "Please use a combination of upper and lower case letters and numbers.\n"
+ 					  "Enter new password: ")))
+@@ -379,6 +400,8 @@ static int new_password(const struct pas
+ 	bzero(cp, strlen(cp));
+ 	bzero(orig, sizeof(orig));
+ 
++	}
++
+ 	if (algo == 1) {
+ 		cp = pw_encrypt(pass, "$1$");
+ 	} else
+--- busybox.original/include/usage.h	2006-06-14 15:53:59.000000000 -0700
++++ busybox-1.1.0/include/usage.h	2006-06-14 16:13:42.000000000 -0700
+@@ -2325,7 +2325,8 @@
+ 	PASSWORD_ALG_TYPES(", sha1") \
+ 	")\n\t-d\tDelete the password for the specified user account\n" \
+ 	"\t-l\tLocks (disables) the specified user account\n" \
+-	"\t-u\tUnlocks (re-enables) the specified user account"
++	"\t-u\tUnlocks (re-enables) the specified user account" \
++        "\t-s\tRead new password from stdin."
+ 
+ #define patch_trivial_usage \
+ 	"[-p<num>] [-i<patch.diff>]"

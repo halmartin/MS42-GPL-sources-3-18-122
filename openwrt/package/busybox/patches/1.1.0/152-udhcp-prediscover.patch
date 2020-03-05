@@ -1,0 +1,11 @@
+diff -ru busybox-1.1.0-old/networking/udhcp/dhcpc.c busybox-1.1.0/networking/udhcp/dhcpc.c
+--- busybox-1.1.0-old/networking/udhcp/dhcpc.c	2008-11-10 16:28:14.000000000 -0800
++++ busybox-1.1.0/networking/udhcp/dhcpc.c	2008-11-10 16:28:44.000000000 -0800
+@@ -376,6 +376,7 @@
+ 						xid = random_xid();
+ 
+ 					/* send discover packet */
++					run_script(NULL, "prediscover");
+ 					send_discover(xid, requested_ip); /* broadcast */
+ 
+ 					timeout = now + ((packet_num == 2) ? 4 : 2);

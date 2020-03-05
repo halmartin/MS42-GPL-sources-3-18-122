@@ -1,0 +1,26 @@
+From dc843a12c3ea52d955a8f9216b33e825a9025b43 Mon Sep 17 00:00:00 2001
+From: Cliff Frey <cliff@meraki.com>
+Date: Sat, 4 Aug 2012 21:19:50 -0700
+Subject: [PATCH] lineedit: fix M-d, avoid infinite loop
+
+Signed-off-by: Cliff Frey <cliff@meraki.com>
+---
+ libbb/lineedit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libbb/lineedit.c b/libbb/lineedit.c
+index b89748a..10bc442 100644
+--- a/libbb/lineedit.c
++++ b/libbb/lineedit.c
+@@ -2529,7 +2529,7 @@ int FAST_FUNC read_line_input(line_input_t *st, const char *prompt, char *comman
+ 					ctrl_right();
+ 					nc = cursor;
+ 					input_backward(cursor - sc);
+-					while (--nc >= cursor)
++					while (--nc >= sc)
+ 						input_delete(1);
+ 					break;
+ 				}
+-- 
+1.7.11.rc3.11.g7dba3f7
+

@@ -1,0 +1,11 @@
+--- uClibc-0.9.29.dist/Rules.mak	2011-05-17 17:36:34.777644001 -0700
++++ uClibc-0.9.29/Rules.mak	2011-05-17 17:37:12.817644001 -0700
+@@ -357,7 +357,7 @@
+ #XWARNINGS+=-Wdeclaration-after-statement
+ endif
+ XARCH_CFLAGS=$(subst ",, $(strip $(ARCH_CFLAGS)))
+-CPU_CFLAGS=$(subst ",, $(strip $(CPU_CFLAGS-y)))
++CPU_CFLAGS+=$(subst ",, $(strip $(CPU_CFLAGS-y)))
+ 
+ SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
+ ifeq ($(UCLIBC_BUILD_SSP),y)

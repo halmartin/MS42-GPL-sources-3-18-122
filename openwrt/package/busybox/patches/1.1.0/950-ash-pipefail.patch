@@ -1,0 +1,47 @@
+--- a/shell/ash.c	2011-01-31 20:51:13.360659998 -0800
++++ b/shell/ash.c	2011-01-31 20:55:48.068660001 -0800
+@@ -1934,10 +1934,10 @@
+ #define uflag optlist[12]
+ #define qflag optlist[13]
+ #define viflag optlist[14]
+-
++#define pipeflag optlist[15]
+ #ifdef DEBUG
+-#define nolog optlist[15]
+-#define debug optlist[16]
++#define nolog optlist[16]
++#define debug optlist[17]
+ #endif
+ 
+ #ifndef CONFIG_FEATURE_COMMAND_EDITING_VI
+@@ -1963,6 +1963,7 @@
+ 	"u"   "nounset",
+ 	"q"   "quietprofile",
+ 	"\0"  "vi",
++	"\0"  "pipefail",
+ #ifdef DEBUG
+ 	"\0"  "nolog",
+ 	"\0"  "debug",
+@@ -7784,10 +7785,20 @@
+ 
+ static int
+ getstatus(struct job *job) {
+-	int status;
++	int status = 0;
+ 	int retval;
+ 
+-	status = job->ps[job->nprocs - 1].status;
++	if (pipeflag) {
++	// When `set -o pipefail` set ensure we catch any failing process in
++	// the pipe: actually we return the last unsuccessful status.
++	int i;
++	for (i = job->nprocs - 1; i >= 0; i --) {
++		status = job->ps[i].status;
++		if (! WIFEXITED(status) || WEXITSTATUS(status) != 0)
++			break;
++		}
++	} else
++		status = job->ps[job->nprocs - 1].status;
+ 	retval = WEXITSTATUS(status);
+ 	if (!WIFEXITED(status)) {
+ #if JOBS

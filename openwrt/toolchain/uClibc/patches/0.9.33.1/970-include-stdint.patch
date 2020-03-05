@@ -1,0 +1,11 @@
+diff -ur uClibc-0.9.33.1/libc/sysdeps/linux/common/mmap64.c uClibc-0.9.33.1-new/libc/sysdeps/linux/common/mmap64.c
+--- uClibc-0.9.33.1/libc/sysdeps/linux/common/mmap64.c	2012-05-10 14:18:26.857588049 -0700
++++ uClibc-0.9.33.1-new/libc/sysdeps/linux/common/mmap64.c	2012-05-10 14:10:20.603585858 -0700
+@@ -10,6 +10,7 @@
+ #ifdef __UCLIBC_HAS_LFS__
+ 
+ #include <errno.h>
++#include <stdint.h>
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>

@@ -1,0 +1,13 @@
+diff -ur busybox-1.1.0-old/networking/udhcp/options.c busybox-1.1.0/networking/udhcp/options.c
+--- busybox-1.1.0-old/networking/udhcp/options.c	2009-02-11 16:53:49.000000000 -0800
++++ busybox-1.1.0/networking/udhcp/options.c	2009-03-09 13:41:01.000000000 -0700
+@@ -30,7 +30,7 @@
+ 	{"swapsvr",	OPTION_IP,				0x10},
+ 	{"rootpath",	OPTION_STRING,				0x11},
+ 	{"ipttl",	OPTION_U8,				0x17},
+-	{"mtu",		OPTION_U16,				0x1a},
++	{"mtu",		OPTION_U16 | OPTION_REQ,		0x1a},
+ 	{"broadcast",	OPTION_IP | OPTION_REQ,			0x1c},
+ 	{"nisdomain",	OPTION_STRING | OPTION_REQ,		0x28},
+ 	{"nissrv",	OPTION_IP | OPTION_LIST | OPTION_REQ,	0x29},
+Only in busybox-1.1.0/networking/udhcp: options.c~

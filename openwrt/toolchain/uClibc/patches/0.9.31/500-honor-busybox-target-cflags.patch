@@ -1,0 +1,11 @@
+--- uClibc-0.9.31-dist/Rules.mak	2011-05-17 14:05:26.408669001 -0700
++++ uClibc-0.9.31/Rules.mak	2011-05-17 14:14:05.572669001 -0700
+@@ -542,7 +542,7 @@
+ # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
+ #XWARNINGS+=-Wdeclaration-after-statement
+ endif
+-CPU_CFLAGS=$(call qstrip,$(CPU_CFLAGS-y))
++CPU_CFLAGS+=$(call qstrip,$(CPU_CFLAGS-y))
+ 
+ SSP_DISABLE_FLAGS ?= $(call check_gcc,-fno-stack-protector,)
+ ifeq ($(UCLIBC_BUILD_SSP),y)

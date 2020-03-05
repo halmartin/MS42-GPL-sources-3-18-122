@@ -1,0 +1,81 @@
+diff -ur busybox-1.20.2-orig//init/halt.c busybox-1.20.2/init/halt.c
+--- busybox-1.20.2-orig//init/halt.c	2012-06-26 06:35:45.000000000 -0700
++++ busybox-1.20.2/init/halt.c	2012-08-17 09:50:16.244945248 -0700
+@@ -40,10 +40,11 @@
+ //config:	  locating telinit executable.
+ 
+ //usage:#define halt_trivial_usage
+-//usage:       "[-d DELAY] [-n] [-f]" IF_FEATURE_WTMP(" [-w]")
++//usage:       "[-d DELAY] [-r REASON] [-n] [-f]" IF_FEATURE_WTMP(" [-w]")
+ //usage:#define halt_full_usage "\n\n"
+ //usage:       "Halt the system\n"
+ //usage:     "\n	-d SEC	Delay interval"
++//usage:     "\n	-r STR	Reason for reboot"
+ //usage:     "\n	-n	Do not sync"
+ //usage:     "\n	-f	Force (don't go through init)"
+ //usage:	IF_FEATURE_WTMP(
+@@ -51,23 +52,29 @@
+ //usage:	)
+ //usage:
+ //usage:#define poweroff_trivial_usage
+-//usage:       "[-d DELAY] [-n] [-f]"
++//usage:       "[-d DELAY] [-r REASON] [-n] [-f]"
+ //usage:#define poweroff_full_usage "\n\n"
+ //usage:       "Halt and shut off power\n"
+ //usage:     "\n	-d SEC	Delay interval"
++//usage:     "\n	-r STR	Reason for reboot"
+ //usage:     "\n	-n	Do not sync"
+ //usage:     "\n	-f	Force (don't go through init)"
+ //usage:
+ //usage:#define reboot_trivial_usage
+-//usage:       "[-d DELAY] [-n] [-f]"
++//usage:       "[-d DELAY] [-r REASON] [-n] [-f]"
+ //usage:#define reboot_full_usage "\n\n"
+ //usage:       "Reboot the system\n"
+ //usage:     "\n	-d SEC	Delay interval"
++//usage:     "\n	-r STR	Reason for reboot"
+ //usage:     "\n	-n	Do not sync"
+ //usage:     "\n	-f	Force (don't go through init)"
+ 
+ #include "libbb.h"
+ #include "reboot.h"
++#include <stdio.h>
++#if ENABLE_SYSLOGD
++#include <sys/syslog.h>
++#endif
+ 
+ #if ENABLE_FEATURE_WTMP
+ #include <sys/utsname.h>
+@@ -106,6 +113,9 @@
+ 	static const smallint signals[] = { SIGUSR1, SIGUSR2, SIGTERM };
+ 
+ 	int delay = 0;
++	const char *reason = NULL;
++	const char *wdog_file = "/storage/watchdog_last.status";
++	FILE *fp;
+ 	int which, flags, rc;
+ 
+ 	/* Figure out which applet we're running */
+@@ -118,10 +128,21 @@
+ 	 * in order to not break scripts.
+ 	 * -i (shut down network interfaces) is ignored.
+ 	 */
+-	flags = getopt32(argv, "d:nfwi", &delay);
++	flags = getopt32(argv, "d:nfwir:", &delay, &reason);
+ 
+ 	sleep(delay);
+ 
++#if ENABLE_SYSLOGD
++	openlog(applet_name, 0, LOG_DAEMON);
++	syslog(LOG_ALERT, "### reboot command [%s] ###", (reason ? reason : "sbin_reboot"));
++	closelog();
++#endif
++	/* Write the reboot reason only if there is not an existing watchdog report */
++	if (access(wdog_file, F_OK) && (fp = fopen(wdog_file, "w"))) {
++		fprintf(fp, "reason: %s\n", (reason ? reason : "sbin_reboot"));
++		fclose(fp);
++	}
++
+ 	write_wtmp();
+ 
+ 	if (flags & 8) /* -w */

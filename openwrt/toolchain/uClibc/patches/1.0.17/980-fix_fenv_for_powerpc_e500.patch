@@ -1,0 +1,45 @@
+commit 78a1c7e29a4f6114f77ea3abd7a19799da378a44
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Tue Nov 22 14:28:13 2016 -0800
+
+    980
+
+diff --git a/libm/powerpc/e500/fpu/feholdexcpt.c b/libm/powerpc/e500/fpu/feholdexcpt.c
+index edeb2cf..6dc94dc 100644
+--- a/libm/powerpc/e500/fpu/feholdexcpt.c
++++ b/libm/powerpc/e500/fpu/feholdexcpt.c
+@@ -21,6 +21,8 @@
+ #include <syscall.h>
+ #include <sys/prctl.h>
+ 
++libm_hidden_proto (feholdexcept)
++
+ int
+ feholdexcept (fenv_t *envp)
+ {
+diff --git a/libm/powerpc/e500/fpu/fesetround.c b/libm/powerpc/e500/fpu/fesetround.c
+index 783541d..e4e9e9c 100644
+--- a/libm/powerpc/e500/fpu/fesetround.c
++++ b/libm/powerpc/e500/fpu/fesetround.c
+@@ -19,6 +19,8 @@
+ 
+ #include "fenv_libc.h"
+ 
++libm_hidden_proto (fesetround)
++
+ int
+ fesetround (int round)
+ {
+diff --git a/libm/powerpc/e500/fpu/fraiseexcpt.c b/libm/powerpc/e500/fpu/fraiseexcpt.c
+index 0c92b28..99b9143 100644
+--- a/libm/powerpc/e500/fpu/fraiseexcpt.c
++++ b/libm/powerpc/e500/fpu/fraiseexcpt.c
+@@ -23,6 +23,8 @@
+ 
+ #define __FERAISEEXCEPT_INTERNAL feraiseexcept
+ 
++libm_hidden_proto (feraiseexcept)
++
+ #include "../spe-raise.c"
+ 
+ libm_hidden_def (feraiseexcept)

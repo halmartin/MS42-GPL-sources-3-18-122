@@ -1,0 +1,53 @@
+diff -ur busybox-1.24.1-orig//networking/arping.c busybox-1.24.1/networking/arping.c
+--- busybox-1.24.1-orig//networking/arping.c	2012-06-26 06:35:45.000000000 -0700
++++ busybox-1.24.1/networking/arping.c	2012-08-17 10:01:48.204748294 -0700
+@@ -20,6 +20,7 @@
+ //usage:     "\n	-w TIMEOUT	Time to wait for ARP reply, seconds"
+ //usage:     "\n	-I IFACE	Interface to use (default eth0)"
+ //usage:     "\n	-s SRC_IP	Sender IP address"
++//usage:     "\n	-r SECONDS	Seconds between sending requests"
+ //usage:     "\n	DST_IP		Target IP address"
+ 
+ #include <arpa/inet.h>
+@@ -59,6 +60,7 @@
+ 	unsigned received;
+ 	unsigned brd_recv;
+ 	unsigned req_recv;
++	unsigned rate;
+ } FIX_ALIASING;
+ #define G (*(struct globals*)&bb_common_bufsiz1)
+ #define src        (G.src       )
+@@ -75,8 +78,10 @@
+ #define received   (G.received  )
+ #define brd_recv   (G.brd_recv  )
+ #define req_recv   (G.req_recv  )
++#define rate       (G.rate      )
+ #define INIT_G() do { \
+	setup_common_bufsiz(); \
+ 	count = -1; \
++	rate = 1; \
+ } while (0)
+ 
+ // If GNUisms are not available...
+@@ -159,7 +163,7 @@
+ 		if (count == 0 && (option_mask32 & UNSOLICITED))
+ 			finish();
+ 	}
+-	alarm(1);
++	alarm(rate);
+ }
+ 
+ static bool recv_pack(unsigned char *buf, int len, struct sockaddr_ll *FROM)
+@@ -292,9 +296,9 @@
+ 		/* Dad also sets quit_on_reply.
+ 		 * Advert also sets unsolicited.
+ 		 */
+-		opt_complementary = "=1:Df:AU:c+";
+-		opt = getopt32(argv, "DUAqfbc:w:I:s:",
+-				&count, &str_timeout, &device, &source);
++		opt_complementary = "=1:Df:AU:c+:r+";
++		opt = getopt32(argv, "DUAqfbc:w:I:s:r:",
++			       &count, &str_timeout, &device, &source, &rate);
+ 		if (opt & 0x80) /* -w: timeout */
+ 			timeout_us = xatou_range(str_timeout, 0, INT_MAX/2000000) * 1000000 + 500000;
+ 		//if (opt & 0x200) /* -s: source */

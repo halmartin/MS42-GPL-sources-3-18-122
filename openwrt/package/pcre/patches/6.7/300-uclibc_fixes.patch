@@ -1,0 +1,69 @@
+--- pcre-6.7-old/pcre_scanner_unittest.cc	2006-07-05 04:28:01.000000000 -0700
++++ pcre-6.7/pcre_scanner_unittest.cc	2007-02-12 02:19:20.000000000 -0800
+@@ -72,7 +72,7 @@
+   s.GetNextComments(&comments);
+   CHECK_EQ(comments.size(), 1);
+   CHECK_EQ(comments[0].as_string(), " // this sets alpha\n");
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.Consume(re, &var, &number);
+   CHECK_EQ(var, "bravo");
+@@ -80,7 +80,7 @@
+   s.GetNextComments(&comments);
+   CHECK_EQ(comments.size(), 1);
+   CHECK_EQ(comments[0].as_string(), " // bravo is set here\n");
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.Consume(re, &var, &number);
+   CHECK_EQ(var, "gamma");
+@@ -88,18 +88,18 @@
+   s.GetNextComments(&comments);
+   CHECK_EQ(comments.size(), 1);
+   CHECK_EQ(comments[0].as_string(), " /* and here is gamma */\n");
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.GetComments(0, sizeof(input), &comments);
+   CHECK_EQ(comments.size(), 3);
+   CHECK_EQ(comments[0].as_string(), " // this sets alpha\n");
+   CHECK_EQ(comments[1].as_string(), " // bravo is set here\n");
+   CHECK_EQ(comments[2].as_string(), " /* and here is gamma */\n");
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.GetComments(0, strchr(input, '/') - input, &comments);
+   CHECK_EQ(comments.size(), 0);
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.GetComments(strchr(input, '/') - input - 1, sizeof(input),
+                 &comments);
+@@ -107,13 +107,13 @@
+   CHECK_EQ(comments[0].as_string(), " // this sets alpha\n");
+   CHECK_EQ(comments[1].as_string(), " // bravo is set here\n");
+   CHECK_EQ(comments[2].as_string(), " /* and here is gamma */\n");
+-  comments.resize(0);
++  comments.clear();
+ 
+   s.GetComments(strchr(input, '/') - input - 1,
+                 strchr(input + 1, '\n') - input + 1, &comments);
+   CHECK_EQ(comments.size(), 1);
+   CHECK_EQ(comments[0].as_string(), " // this sets alpha\n");
+-  comments.resize(0);
++  comments.clear();
+ }
+ 
+ int main(int argc, char** argv) {
+--- pcre-6.7-old/pcrecpp.cc	2006-07-05 04:28:01.000000000 -0700
++++ pcre-6.7/pcrecpp.cc	2007-02-12 02:24:02.000000000 -0800
+@@ -409,7 +409,7 @@
+ 
+   if (start < static_cast<int>(str->length()))
+     out.append(*str, start, str->length() - start);
+-  swap(out, *str);
++  out.swap(*str);
+   return count;
+ }
+ 

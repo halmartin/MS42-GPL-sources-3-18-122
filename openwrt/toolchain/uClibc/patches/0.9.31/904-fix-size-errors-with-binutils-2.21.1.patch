@@ -1,0 +1,326 @@
+diff --git a/libc/sysdeps/linux/mips/crtn.S b/libc/sysdeps/linux/mips/crtn.S
+index cedd593..f3756a2 100644
+--- a/libc/sysdeps/linux/mips/crtn.S
++++ b/libc/sysdeps/linux/mips/crtn.S
+@@ -10,7 +10,6 @@
+ #NO_APP
+ 	.align	2
+ 	.globl	_init
+-	.ent	_init
+ 	.type	_init, @function
+ #NO_APP
+ 	lw	$31,28($sp)
+@@ -22,14 +21,12 @@
+ 	.set	macro
+ 	.set	reorder
+ 
+-	.end	_init
+ #APP
+ 	
+ 	.section .fini
+ #NO_APP
+ 	.align	2
+ 	.globl	_fini
+-	.ent	_fini
+ 	.type	_fini, @function
+ #NO_APP
+ 	lw	$31,28($sp)
+@@ -41,7 +38,6 @@
+ 	.set	macro
+ 	.set	reorder
+ 
+-	.end	_fini
+ #APP
+ 	
+ 	.ident	"GCC: (GNU) 3.3.2"
+@@ -54,10 +50,8 @@
+ 	
+ 	.section .init
+ #NO_APP
+-	.align	2
+ 	.align	3
+ 	.globl	_init
+-	.ent	_init
+ 	.type	_init, @function
+ #NO_APP
+ 	ld	$31,8($sp)
+@@ -68,16 +62,12 @@
+ 	addiu	$sp,$sp,16
+ 	.set	macro
+ 	.set	reorder
+-
+-	.end	_init
+ #APP
+ 	
+ 	.section .fini
+ #NO_APP
+-	.align	2
+ 	.align	3
+ 	.globl	_fini
+-	.ent	_fini
+ 	.type	_fini, @function
+ #NO_APP
+ 	ld	$31,8($sp)
+@@ -89,7 +79,6 @@
+ 	.set	macro
+ 	.set	reorder
+ 
+-	.end	_fini
+ #APP
+ 	
+ 	.ident	"GCC: (GNU) 3.4.3"
+@@ -105,7 +94,6 @@
+ #NO_APP
+ 	.align	2
+ 	.globl	_init
+-	.ent	_init
+ 	.type	_init, @function
+ #NO_APP
+ 	ld	$31,24($sp)
+@@ -118,14 +106,12 @@
+ 	.set	macro
+ 	.set	reorder
+ 
+-	.end	_init
+ #APP
+ 	
+ 	.section .fini
+ #NO_APP
+ 	.align	2
+ 	.globl	_fini
+-	.ent	_fini
+ 	.type	_fini, @function
+ #NO_APP
+ 	ld	$31,24($sp)
+@@ -138,7 +124,6 @@
+ 	.set	macro
+ 	.set	reorder
+ 
+-	.end	_fini
+ #APP
+ 	
+ 	.ident	"GCC: (GNU) 3.3.2"
+diff -u -r a/libc/sysdeps/linux/arm/crtn.S b/libc/sysdeps/linux/arm/crtn.S
+--- a/libc/sysdeps/linux/arm/crtn.S	2012-05-09 13:33:57.647197977 -0700
++++ b/libc/sysdeps/linux/arm/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -15,7 +15,6 @@
+ 	.arm
+ 	ldmdb	fp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
+ #endif
+-	.size	_init, .-_init
+ 	
+ 	.section .fini
+ 	.global	_fini
+@@ -29,7 +28,6 @@
+ 	.arm
+ 	ldmdb	fp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, pc}
+ #endif
+-	.size	_fini, .-_fini
+ 	
+ 	@ In fact this is modified to 3.4.4
+ 	.ident	"GCC: (GNU) 3.3.2 20031005 (Debian prerelease)"
+diff -u -r a/libc/sysdeps/linux/avr32/crtn.S b/libc/sysdeps/linux/avr32/crtn.S
+--- a/libc/sysdeps/linux/avr32/crtn.S	2012-05-09 13:33:57.651197975 -0700
++++ b/libc/sysdeps/linux/avr32/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -4,11 +4,9 @@
+ 	.global	_init
+ 	.type	_init, @function
+ 	ldm	sp++, r6, pc
+-	.size	_init, . - _init
+ 
+ 	.section .fini
+ 	.align	2
+ 	.global _fini
+ 	.type	_fini, @function
+ 	ldm	sp++, r6, pc
+-	.size	_fini, . - _fini
+diff -u -r a/libc/sysdeps/linux/cris/crtn.S b/libc/sysdeps/linux/cris/crtn.S
+--- a/libc/sysdeps/linux/cris/crtn.S	2012-05-09 13:33:57.655197973 -0700
++++ b/libc/sysdeps/linux/cris/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -9,7 +9,6 @@
+ 	move.d	[$sp+],$r1
+ 	Ret
+ 	nop
+-	.size	_init, .-_init
+ 
+ 	.section	.fini
+ 	.align	1
+@@ -20,4 +19,3 @@
+ 	move.d	[$sp+],$r1
+ 	Ret
+ 	nop
+-	.size	_fini, .-_fini
+diff -u -r a/libc/sysdeps/linux/frv/crtn.S b/libc/sysdeps/linux/frv/crtn.S
+--- a/libc/sysdeps/linux/frv/crtn.S	2012-05-09 13:33:57.655197973 -0700
++++ b/libc/sysdeps/linux/frv/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -32,7 +32,6 @@
+ 	ld @(sp,gr0), fp
+ 	addi sp,#16,sp
+ 	jmpl @(gr5,gr0)
+-	.size	_init, .-_init
+ 	
+ 	.section .fini,"x"
+ 	.globl _fini
+@@ -41,4 +40,3 @@
+ 	ld @(sp,gr0), fp
+ 	addi sp,#16,sp
+ 	jmpl @(gr5,gr0)
+-	.size	_fini, .-_fini
+diff -u -r a/libc/sysdeps/linux/h8300/crtn.S b/libc/sysdeps/linux/h8300/crtn.S
+--- a/libc/sysdeps/linux/h8300/crtn.S	2012-05-09 13:33:57.659197972 -0700
++++ b/libc/sysdeps/linux/h8300/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -14,7 +14,6 @@
+ ; #NO_APP
+ 	mov.l	@er7+,er6
+ 	rts
+-	.size	__init, .-__init
+ ; #APP
+ 
+ 	.section .fini
+@@ -24,7 +23,6 @@
+ ; #NO_APP
+ 	mov.l	@er7+,er6
+ 	rts
+-	.size	__fini, .-__fini
+ ; #APP
+ 
+ 	.end
+diff -u -r a/libc/sysdeps/linux/i386/crtn.S b/libc/sysdeps/linux/i386/crtn.S
+--- a/libc/sysdeps/linux/i386/crtn.S	2012-05-09 13:33:57.663197974 -0700
++++ b/libc/sysdeps/linux/i386/crtn.S	2012-05-09 13:36:48.359202347 -0700
+@@ -6,7 +6,6 @@
+ 	popl	%ebx
+ 	popl	%ebp
+ 	ret
+-.size _init,.-_init
+ 
+ 
+ 
+@@ -16,7 +15,6 @@
+ 	popl	%ebx
+ 	popl	%ebp
+ 	ret
+-.size _fini,.-_fini
+ 
+ 
+ 
+diff -u -r a/libc/sysdeps/linux/powerpc/crtn.S b/libc/sysdeps/linux/powerpc/crtn.S
+--- a/libc/sysdeps/linux/powerpc/crtn.S	2012-05-09 13:33:57.667197977 -0700
++++ b/libc/sysdeps/linux/powerpc/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -9,7 +9,6 @@
+ 	addi 1,1,32
+ 	mtlr 0
+ 	blr
+-	.size	_init, .-_init
+ 	
+ 	.section .fini
+ 	.align 2
+@@ -20,4 +19,3 @@
+ 	addi 1,1,32
+ 	mtlr 0
+ 	blr
+-	.size	_fini, .-_fini
+diff -u -r a/libc/sysdeps/linux/sh/crtn.S b/libc/sysdeps/linux/sh/crtn.S
+--- a/libc/sysdeps/linux/sh/crtn.S	2012-05-09 13:33:57.671197978 -0700
++++ b/libc/sysdeps/linux/sh/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -15,7 +15,6 @@
+ 	.align 2
+ .L6:
+ .L7:
+-	.size	_init, .-_init
+ 	
+ 	.section .fini
+ 	.hidden  _fini
+@@ -31,6 +30,5 @@
+ 	.align 2
+ .L11:
+ .L12:
+-	.size	_fini, .-_fini
+ 	
+ 	.ident	"GCC: (GNU) 3.3.2"
+diff -u -r a/libc/sysdeps/linux/sh64/crtn.S b/libc/sysdeps/linux/sh64/crtn.S
+--- a/libc/sysdeps/linux/sh64/crtn.S	2012-05-09 13:33:57.675197979 -0700
++++ b/libc/sysdeps/linux/sh64/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -14,7 +14,6 @@
+ 	ptabs	r18, tr0
+ 	addi.l	r15, 16, r15
+ 	blink	tr0, r63
+-	.size	_init, .-_init
+ 	
+ 	.section .fini
+ 	.hidden  _fini
+@@ -28,6 +27,5 @@
+ 	ptabs	r18, tr0
+ 	addi.l	r15, 16, r15
+ 	blink	tr0, r63
+-	.size	_fini, .-_fini
+ 	
+ 	.ident	"GCC: (GNU) 3.3.2"
+diff -u -r a/libc/sysdeps/linux/sparc/crtn.S b/libc/sysdeps/linux/sparc/crtn.S
+--- a/libc/sysdeps/linux/sparc/crtn.S	2012-05-09 13:33:57.679197979 -0700
++++ b/libc/sysdeps/linux/sparc/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -7,7 +7,6 @@
+ 	.proc	020
+ 	ret
+ 	restore
+-	.size	_init, .-_init
+ 	
+ 	.section .fini
+ 	.align 4
+@@ -16,4 +15,3 @@
+ 	.proc	020
+ 	ret
+ 	restore
+-	.size	_fini, .-_fini
+diff -u -r a/libc/sysdeps/linux/v850/crtn.S b/libc/sysdeps/linux/v850/crtn.S
+--- a/libc/sysdeps/linux/v850/crtn.S	2012-05-09 13:33:57.683197978 -0700
++++ b/libc/sysdeps/linux/v850/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -8,7 +8,6 @@
+ 	.type	__init, @function
+ #NO_APP
+ 	jr __return_r31
+-	.size	__init, .-__init
+ #APP
+ 	
+ 	.section .fini
+@@ -18,7 +17,6 @@
+ 	.type	__fini, @function
+ #NO_APP
+ 	jr __return_r31
+-	.size	__fini, .-__fini
+ #APP
+ 	
+ 	.ident	"GCC: (GNU) 3.3.2"
+diff -u -r a/libc/sysdeps/linux/vax/crtn.S b/libc/sysdeps/linux/vax/crtn.S
+--- a/libc/sysdeps/linux/vax/crtn.S	2012-05-09 13:33:57.687197976 -0700
++++ b/libc/sysdeps/linux/vax/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -9,7 +9,6 @@
+ 	.type	 _init,@function
+ 	ret
+ .Lfe2:
+-	.size	 _init,.Lfe2-_init
+ 
+ 	.section .fini
+ 	.align 1
+@@ -17,5 +16,4 @@
+ 	.type	 _fini,@function
+ 	ret
+ .Lfe3:
+-	.size	 _fini,.Lfe3-_fini
+ 	.ident	"GCC: (GNU) 2.95.2 19991024 (release) (Linux/VAX CVS)"
+diff -u -r a/libc/sysdeps/linux/x86_64/crtn.S b/libc/sysdeps/linux/x86_64/crtn.S
+--- a/libc/sysdeps/linux/x86_64/crtn.S	2012-05-09 13:33:57.691197974 -0700
++++ b/libc/sysdeps/linux/x86_64/crtn.S	2012-05-09 13:38:06.763204354 -0700
+@@ -7,7 +7,6 @@
+ .type    _init, %function
+ 	addq $8, %rsp
+ 	ret
+-.size _init,.-_init
+ 
+ 
+ .section .fini
+@@ -15,4 +14,3 @@
+ .type    _fini, %function
+ 	addq $8, %rsp
+ 	ret
+-.size _fini, .-_fini

@@ -1,0 +1,38 @@
+--- busybox-1.1.0-old/networking/arping.c	2008-10-22 21:55:22.000000000 -0700
++++ busybox-1.1.0/networking/arping.c	2008-10-22 13:28:45.000000000 -0700
+@@ -48,6 +48,7 @@
+ static int received;
+ static int brd_recv;
+ static int req_recv;
++static int rate = 1;
+ 
+ #define MS_TDIFF(tv1,tv2) ( ((tv1).tv_sec-(tv2).tv_sec)*1000 + \
+ 			   ((tv1).tv_usec-(tv2).tv_usec)/1000 )
+@@ -148,7 +149,7 @@
+ 		if (count == 0 && unsolicited)
+ 			finish();
+ 	}
+-	alarm(1);
++	alarm(rate);
+ }
+ 
+ static int recv_pack(unsigned char *buf, int len, struct sockaddr_ll *FROM)
+@@ -275,7 +276,7 @@
+ 
+ 	setuid(uid);
+ 
+-	while ((ch = getopt(argc, argv, "h?bfDUAqc:w:s:I:")) != EOF) {
++	while ((ch = getopt(argc, argv, "h?bfDUAqc:w:s:I:r:")) != EOF) {
+ 		switch (ch) {
+ 		case 'b':
+ 			broadcast_only = 1;
+@@ -316,6 +317,9 @@
+ 		case 's':
+ 			source = optarg;
+ 			break;
++		case 'r':
++			rate = atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:

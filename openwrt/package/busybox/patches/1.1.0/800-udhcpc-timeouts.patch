@@ -1,0 +1,34 @@
+Binary files busybox-1.1.0/applets/applets.a and busybox-1.1.0.new/applets/applets.a differ
+Binary files busybox-1.1.0/archival/archival.a and busybox-1.1.0.new/archival/archival.a differ
+Binary files busybox-1.1.0/archival/libipkg/libipkg.a and busybox-1.1.0.new/archival/libipkg/libipkg.a differ
+Binary files busybox-1.1.0/archival/libunarchive/libunarchive.a and busybox-1.1.0.new/archival/libunarchive/libunarchive.a differ
+diff -ru busybox-1.1.0/networking/udhcp/dhcpc.c busybox-1.1.0.new/networking/udhcp/dhcpc.c
+--- busybox-1.1.0/networking/udhcp/dhcpc.c	2010-11-21 04:28:49.855930360 -0800
++++ busybox-1.1.0.new/networking/udhcp/dhcpc.c	2010-11-21 04:30:59.519575469 -0800
+@@ -371,7 +371,7 @@
+ 			/* timeout dropped to zero */
+ 			switch (state) {
+ 			case INIT_SELECTING:
+-				if (packet_num < 3) {
++				if (packet_num < 4) {
+ 					if (packet_num == 0)
+ 						xid = random_xid();
+ 
+@@ -379,7 +379,7 @@
+ 					run_script(NULL, "prediscover");
+ 					send_discover(xid, requested_ip); /* broadcast */
+ 
+-					timeout = now + ((packet_num == 2) ? 4 : 2);
++					timeout = now + (packet_num*2 + 1);
+ 					packet_num++;
+ 				} else {
+ 					run_script(NULL, "leasefail");
+@@ -392,7 +392,7 @@
+ 				  	}
+ 					/* wait to try again */
+ 					packet_num = 0;
+-					timeout = now + 60;
++					timeout = now + 10;
+ 				}
+ 				break;
+ 			case RENEW_REQUESTED:

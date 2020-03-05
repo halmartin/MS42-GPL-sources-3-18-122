@@ -1,0 +1,11 @@
+--- busybox-1.1.0-old/util-linux/umount.c	2011-01-18 22:24:19.267752945 -0800
++++ busybox-1.1.0/util-linux/umount.c	2011-01-19 12:08:49.831605875 -0800
+@@ -116,7 +116,7 @@
+ 
+ 		/* De-allocate the loop device.  This ioctl should be ignored on any
+ 		 * non-loop block devices. */
+-		if(ENABLE_FEATURE_MOUNT_LOOP && !(opt & OPT_DONTFREELOOP) && m)
++		if(!curstat && ENABLE_FEATURE_MOUNT_LOOP && !(opt & OPT_DONTFREELOOP) && m)
+ 			del_loop(m->device);
+ 
+ 		if(curstat) {

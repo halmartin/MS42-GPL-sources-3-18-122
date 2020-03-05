@@ -1,0 +1,139 @@
+commit cdd3236409780c73b69936f1553972bcfdc9b2ae
+Author: Khem Raj <raj.khem@gmail.com>
+Date:   Thu Feb 20 00:30:18 2014 -0800
+
+    Add eventfd_read() and eventfd_write()
+    
+    Signed-off-by: Khem Raj <raj.khem@gmail.com>
+    Signed-off-by: Bernhard Reutner-Fischer <rep.dot.nop@gmail.com>
+
+diff --git a/libc/sysdeps/linux/common/Makefile.in b/libc/sysdeps/linux/common/Makefile.in
+index 3b5763c..28134de 100644
+--- a/libc/sysdeps/linux/common/Makefile.in
++++ b/libc/sysdeps/linux/common/Makefile.in
+@@ -24,6 +24,8 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
+ 	capget.c \
+ 	capset.c \
+ 	eventfd.c \
++	eventfd_read.c \
++	eventfd_write.c \
+ 	inotify.c \
+ 	ioperm.c \
+ 	iopl.c \
+diff --git a/libc/sysdeps/linux/common/eventfd.c b/libc/sysdeps/linux/common/eventfd.c
+index 96597ab..500b0c0 100644
+--- a/libc/sysdeps/linux/common/eventfd.c
++++ b/libc/sysdeps/linux/common/eventfd.c
+@@ -15,7 +15,7 @@
+  * eventfd()
+  */
+ #if defined __NR_eventfd || defined __NR_eventfd2
+-int eventfd (int count, int flags)
++int eventfd (unsigned int count, int flags)
+ {
+ #if defined __NR_eventfd2
+   return INLINE_SYSCALL (eventfd2, 2, count, flags);
+diff --git a/libc/sysdeps/linux/common/eventfd_read.c b/libc/sysdeps/linux/common/eventfd_read.c
+new file mode 100644
+index 0000000..75f2aaa
+--- /dev/null
++++ b/libc/sysdeps/linux/common/eventfd_read.c
+@@ -0,0 +1,27 @@
++/* Copyright (C) 2007-2014 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, see
++   <http://www.gnu.org/licenses/>.  */
++
++#include <errno.h>
++#include <unistd.h>
++#include <sys/eventfd.h>
++
++
++int
++eventfd_read (int fd, eventfd_t *value)
++{
++  return read (fd, value, sizeof (eventfd_t)) != sizeof (eventfd_t) ? -1 : 0;
++}
+diff --git a/libc/sysdeps/linux/common/eventfd_write.c b/libc/sysdeps/linux/common/eventfd_write.c
+new file mode 100644
+index 0000000..e1509cf
+--- /dev/null
++++ b/libc/sysdeps/linux/common/eventfd_write.c
+@@ -0,0 +1,28 @@
++/* Copyright (C) 2007-2014 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, see
++   <http://www.gnu.org/licenses/>.  */
++
++#include <errno.h>
++#include <unistd.h>
++#include <sys/eventfd.h>
++
++
++int
++eventfd_write (int fd, eventfd_t value)
++{
++  return write (fd, &value,
++		sizeof (eventfd_t)) != sizeof (eventfd_t) ? -1 : 0;
++}
+diff --git a/libc/sysdeps/linux/common/sys/eventfd.h b/libc/sysdeps/linux/common/sys/eventfd.h
+index 8686355..79b5342 100644
+--- a/libc/sysdeps/linux/common/sys/eventfd.h
++++ b/libc/sysdeps/linux/common/sys/eventfd.h
+@@ -32,9 +32,7 @@ __BEGIN_DECLS
+ 
+ /* Return file descriptor for generic event channel.  Set initial
+    value to COUNT.  */
+-extern int eventfd (int __count, int __flags) __THROW;
+-
+-#if 0 /* not (yet) implemented in uClibc */
++extern int eventfd (unsigned int __count, int __flags) __THROW;
+ 
+ /* Read event counter and possibly wait for events.  */
+ extern int eventfd_read (int __fd, eventfd_t *__value);
+@@ -42,8 +40,6 @@ extern int eventfd_read (int __fd, eventfd_t *__value);
+ /* Increment event counter.  */
+ extern int eventfd_write (int __fd, eventfd_t __value);
+ 
+-#endif
+-
+ __END_DECLS
+ 
+ #endif /* sys/eventfd.h */
+diff --git a/libc/sysdeps/linux/sparc/bits/eventfd.h b/libc/sysdeps/linux/sparc/bits/eventfd.h
+index bed9f09..e348cc6 100644
+--- a/libc/sysdeps/linux/sparc/bits/eventfd.h
++++ b/libc/sysdeps/linux/sparc/bits/eventfd.h
+@@ -22,7 +22,7 @@
+ /* Flags for eventfd.  */
+ enum
+   {
+-    EFD_SEMAPHORE = 1,
++    EFD_SEMAPHORE = 0x000001,
+ #define EFD_SEMAPHORE EFD_SEMAPHORE
+     EFD_CLOEXEC = 0x400000,
+ #define EFD_CLOEXEC EFD_CLOEXEC

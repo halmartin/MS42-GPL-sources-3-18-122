@@ -1,0 +1,12 @@
+--- busybox-1.20.2-orig/Makefile.flags	2012-08-09 15:36:07.000000000 -0700
++++ busybox-1.20.2/Makefile.flags	2015-12-08 14:24:01.141595550 -0800
+@@ -135,7 +135,8 @@
+ endif
+ 
+ ifeq ($(CONFIG_DMALLOC),y)
+-LDLIBS += dmalloc
++LDLIBS += pthread
++EXTRA_LDFLAGS += -ldmalloc
+ endif
+ 
+ # If a flat binary should be built, CFLAGS_busybox="-elf2flt

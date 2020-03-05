@@ -1,0 +1,68 @@
+diff -ur busybox-1.24.1-orig/networking/ping.c busybox-1.24.1/networking/ping.c
+--- busybox-1.24.1-orig/networking/ping.c	2016-01-13 13:31:48.242448705 -0800
++++ busybox-1.24.1/networking/ping.c		2016-01-13 13:32:07.298447704 -0800
+@@ -102,6 +102,7 @@
+ //usage:     "\n			(can exit earlier with -c CNT)"
+ //usage:     "\n	-q		Quiet, only display output at start"
+ //usage:     "\n			and when finished"
++//usage:     "\n	-T		Print timeouts"
+ //usage:     "\n	-p		Pattern to use for payload"
+ //usage:
+ //usage:# define ping6_trivial_usage
+@@ -332,7 +333,7 @@
+ 
+ /* Full(er) version */
+ 
+-#define OPT_STRING ("qvc:s:t:w:W:I:np:4" IF_PING6("6"))
++#define OPT_STRING ("qvc:s:t:w:W:I:np:T4" IF_PING6("6"))
+ enum {
+ 	OPT_QUIET = 1 << 0,
+ 	OPT_VERBOSE = 1 << 1,
+@@ -342,7 +343,7 @@
+ 	OPT_w = 1 << 5,
+ 	OPT_W = 1 << 6,
+ 	OPT_I = 1 << 7,
+-	/*OPT_n = 1 << 8, - ignored */
++	OPT_T = 1 << 8,
+ 	OPT_p = 1 << 9,
+ 	OPT_IPV4 = 1 << 10,
+ 	OPT_IPV6 = (1 << 11) * ENABLE_PING6,
+@@ -365,6 +366,8 @@
+ 	unsigned timeout;
+ 	unsigned total_secs;
+ 	unsigned sizeof_rcv_packet;
++	unsigned print_timeouts;
++	unsigned last_recv_seq;
+ 	char *rcv_packet; /* [datalen + MAXIPLEN + MAXICMPLEN] */
+ 	void *snd_packet; /* [datalen + ipv4/ipv6_const] */
+ 	const char *hostname;
+@@ -447,6 +450,11 @@
+ {
+ 	int sz;
+ 
++	if (G.print_timeouts && G.ntransmitted != 0 && G.last_recv_seq != G.ntransmitted - 1){
++	  printf("Request timeout for icmp seq %u\n", (unsigned)(G.ntransmitted - 1));
++	  fflush(stdout);
++	}
++	
+ 	CLR((uint16_t)G.ntransmitted % MAX_DUP_CHK);
+ 	G.ntransmitted++;
+ 
+@@ -605,6 +613,7 @@
+ 		*b |= m;
+ 		++G.nreceived;
+ 		dupmsg += 7;
++		G.last_recv_seq = recv_seq;
+ 	}
+ 
+ 	if (option_mask32 & OPT_QUIET)
+@@ -875,6 +884,9 @@
+ 	if (opt & OPT_p)
+ 		G.pattern = xstrtou_range(str_p, 16, 0, 255);
+ 
++	if (opt & OPT_T)
++		G.print_timeouts = 1;
++
+ 	myid = (uint16_t) getpid();
+ 	hostname = argv[optind];
+ #if ENABLE_PING6

@@ -1,0 +1,70 @@
+diff -ur busybox-1.20.2-orig//networking/ping.c busybox-1.20.2/networking/ping.c
+--- busybox-1.20.2-orig//networking/ping.c	2012-08-17 10:05:11.318364252 -0700
++++ busybox-1.20.2/networking/ping.c	2012-08-17 10:14:29.311826634 -0700
+@@ -100,6 +100,7 @@
+ //usage:     "\n			(can exit earlier with -c CNT)"
+ //usage:     "\n	-q		Quiet, only displays output at start"
+ //usage:     "\n			and when finished"
++//usage:     "\n	-T		Print timeouts"
+ //usage:
+ //usage:# define ping6_trivial_usage
+ //usage:       "[OPTIONS] HOST"
+@@ -299,7 +300,7 @@
+ 
+ /* Full(er) version */
+ 
+-#define OPT_STRING ("qvc:s:t:w:W:I:4" IF_PING6("6"))
++#define OPT_STRING ("qvc:s:t:w:W:I:T4" IF_PING6("6"))
+ enum {
+ 	OPT_QUIET = 1 << 0,
+ 	OPT_VERBOSE = 1 << 1,
+@@ -309,8 +310,9 @@
+ 	OPT_w = 1 << 5,
+ 	OPT_W = 1 << 6,
+ 	OPT_I = 1 << 7,
+-	OPT_IPV4 = 1 << 8,
+-	OPT_IPV6 = (1 << 9) * ENABLE_PING6,
++	OPT_T = 1 << 8,
++	OPT_IPV4 = 1 << 9,
++	OPT_IPV6 = (1 << 10) * ENABLE_PING6,
+ };
+ 
+ 
+@@ -330,6 +332,8 @@
+ 	unsigned timeout;
+ 	unsigned total_secs;
+ 	unsigned sizeof_rcv_packet;
++	unsigned print_timeouts;
++	unsigned last_recv_seq;
+ 	char *rcv_packet; /* [datalen + MAXIPLEN + MAXICMPLEN] */
+ 	void *snd_packet; /* [datalen + ipv4/ipv6_const] */
+ 	const char *hostname;
+@@ -412,6 +416,11 @@
+ {
+ 	int sz;
+ 
++	if (G.print_timeouts && ntransmitted != 0 && G.last_recv_seq != ntransmitted - 1) {
++		printf("Request timeout for icmp seq %u\n", (unsigned)(ntransmitted - 1));
++		fflush(stdout);
++	}
++
+ 	CLR((uint16_t)ntransmitted % MAX_DUP_CHK);
+ 	ntransmitted++;
+ 
+@@ -567,6 +576,7 @@
+ 	} else {
+ 		SET(recv_seq % MAX_DUP_CHK);
+ 		dupmsg += 7;
++		G.last_recv_seq = recv_seq;
+ 	}
+ 
+ 	if (option_mask32 & OPT_QUIET)
+@@ -836,6 +846,8 @@
+ 			str_I = NULL; /* don't try to bind to device later */
+ 		}
+ 	}
++	if (opt & OPT_T)
++		G.print_timeouts = 1;
+ 	myid = (uint16_t) getpid();
+ 	hostname = argv[optind];
+ #if ENABLE_PING6

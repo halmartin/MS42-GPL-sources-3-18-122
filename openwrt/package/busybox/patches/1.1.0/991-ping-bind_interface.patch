@@ -1,0 +1,82 @@
+diff -u -b -r busybox-1.1.0/include/usage.h busybox-1.1.0-new/include/usage.h
+--- busybox-1.1.0/include/usage.h	2006-01-10 21:44:14.000000000 -0800
++++ busybox-1.1.0-new/include/usage.h	2011-01-03 17:01:45.180995718 -0800
+@@ -2296,6 +2296,7 @@
+ 	"Options:\n" \
+ 	"\t-c COUNT\tSend only COUNT pings\n" \
+ 	"\t-s SIZE\t\tSend SIZE data bytes in packets (default=56)\n" \
++        "\t-I INTERFACE\tSend pings using net device INTERFACE\n" \
+ 	"\t-q\t\tQuiet mode, only displays output at start\n" \
+ 	"\t\t\tand when finished"
+ #endif
+--- busybox-1.1.0/networking/ping.c	2011-01-30 00:35:47.848976324 -0800
++++ busybox-1.1.0-new/networking/ping.c	2011-01-30 00:37:28.828992311 -0800
+@@ -30,6 +30,10 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <stdlib.h>
++
++#include <sys/ioctl.h>
++#include <linux/if.h>
++
+ #include "busybox.h"
+ 
+ 
+@@ -153,6 +156,7 @@
+ static struct sockaddr_in pingaddr;
+ static int pingsock = -1;
+ static int datalen; /* intentionally uninitialized to work around gcc bug */
++static char *interface = NULL;
+ 
+ static long ntransmitted, nreceived, nrepeats, pingcount;
+ static int myid, options;
+@@ -321,6 +325,26 @@
+ 	fflush(stdout);
+ }
+ 
++static void bind_to_interface(int sock, const char* intf)
++{
++    struct ifreq ifr;
++    struct sockaddr* sockaddr;
++    strncpy(ifr.ifr_name, intf, IFNAMSIZ);
++
++    int r = setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, &ifr, sizeof(ifr));
++    if (r < 0) {
++        strncpy(ifr.ifr_ifrn.ifrn_name, intf, IFNAMSIZ);
++        int r = ioctl(sock, SIOCGIFADDR, &ifr);
++        if (r == -1)
++            bb_error_msg_and_die("Could not get address for interface %s", intf);
++
++        sockaddr = &(ifr.ifr_ifru.ifru_addr);
++        r = bind(sock, &ifr.ifr_ifru.ifru_addr, sizeof(struct sockaddr));
++        if (r == -1)
++            bb_error_msg_and_die("Could not bind to interface %s", intf);
++    }
++}
++
+ static void ping(const char *host)
+ {
+ 	char packet[datalen + MAXIPLEN + MAXICMPLEN];
+@@ -328,6 +352,9 @@
+ 
+ 	pingsock = create_icmp_socket();
+ 
++        if (interface)
++            bind_to_interface(pingsock, interface);
++
+ 	memset(&pingaddr, 0, sizeof(struct sockaddr_in));
+ 
+ 	pingaddr.sin_family = AF_INET;
+@@ -406,6 +433,12 @@
+ 			argv++;
+ 			datalen = atoi(*argv);
+ 			break;
++                    case 'I':
++                        if (--argc <= 0)
++                            bb_show_usage();
++                        argv++;
++                        interface = *argv;
++                        break;
+ 		default:
+ 			bb_show_usage();
+ 		}

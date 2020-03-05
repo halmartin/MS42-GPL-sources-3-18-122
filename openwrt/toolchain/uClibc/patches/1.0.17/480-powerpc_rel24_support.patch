@@ -1,0 +1,34 @@
+commit d8dfbb3eaf7be275f3e074bcd8cbb1c79def5515
+Author: Stephen Segal <ssegal@meraki.com>
+Date:   Thu Sep 15 13:13:31 2016 -0700
+
+    480-powerpc_rel24_support.patch
+
+diff --git a/ldso/ldso/powerpc/elfinterp.c b/ldso/ldso/powerpc/elfinterp.c
+index 81587a6..575a7dc 100644
+--- a/ldso/ldso/powerpc/elfinterp.c
++++ b/ldso/ldso/powerpc/elfinterp.c
+@@ -297,22 +297,17 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
+ 		break;
+ #endif
+ 	case R_PPC_REL24:
+-#if 0
+ 		{
+ 			Elf32_Sword delta = finaladdr - (Elf32_Word)reloc_addr;
+ 			if (unlikely(delta<<6>>6 != delta)) {
+ 				_dl_dprintf(2, "%s: symbol '%s' R_PPC_REL24 is out of range.\n\t"
+ 						"Compile shared libraries with -fPIC!\n",
+ 						_dl_progname, symname);
+-				_dl_exit(1);
++				return -1;
+ 			}
+ 			*reloc_addr = (*reloc_addr & 0xfc000003) | (delta & 0x3fffffc);
+ 			break;
+ 		}
+-#else
+-		_dl_dprintf(2,"R_PPC_REL24: Compile shared libraries with -fPIC!\n");
+-		return -1;
+-#endif
+ 	case R_PPC_NONE:
+ 		goto out_nocode; /* No code modified */
+ 	default:

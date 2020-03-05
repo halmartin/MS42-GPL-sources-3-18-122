@@ -1,0 +1,101 @@
+--- busybox-1.1.0-old/shell/cmdedit.c	2007-06-19 16:26:51.000000000 -0700
++++ busybox-1.1.0/shell/cmdedit.c	2007-06-19 16:26:08.000000000 -0700
+@@ -507,6 +507,44 @@
+ 		cmdedit_set_out_char(command_ps[cursor + 1]);
+ }
+ 
++/* Alt-b -- move 1 word back to 1 char before non-alphanumeric character */
++static void alt_b(void)
++{
++	while (cursor > 0 && !isalnum(command_ps[cursor-1])) 
++		input_backward(1); 
++	while (cursor > 0 && isalnum(command_ps[cursor-1])) 
++		input_backward(1); 
++}
++
++/* Alt-f -- move forward to 1 char after 1ast alphanumeric character */
++static void alt_f(void)
++{
++	while (cursor >= 0 && !isalnum(command_ps[cursor]) && cursor < len) 
++		input_forward(); 
++	while (cursor >= 0 && isalnum(command_ps[cursor+1]) && cursor < len) 
++		input_forward(); 
++	if (cursor < len) 
++		input_forward(); 
++}
++
++/* Alt-d -- delete forward to first non-alphanumeric character */ 
++static void alt_d(void)
++{
++	while (cursor >=0 && !isalnum(command_ps[cursor]) && cursor < len) 
++		input_delete(1); 
++	while (cursor >= 0 && isalnum(command_ps[cursor])) 
++		input_delete(1); 
++}
++
++/* Alt-backspace -- delete backward with same rules as Alt-b */ 
++static void alt_backspace(void)
++{
++	while (cursor > 0 && !isalnum(command_ps[cursor-1])) 
++		input_backspace(); 
++	while (cursor > 0 && isalnum(command_ps[cursor-1])) 
++		input_backspace(); 
++}
++
+ static void cmdedit_setwidth(int w, int redraw_flg)
+ {
+ 	cmdedit_termw = cmdedit_prmt_len + 2;
+@@ -1378,8 +1416,9 @@
+ #define VICMD(somecmd) ((somecmd)|VI_cmdbit)
+ 
+ /* convert uppercase ascii to equivalent control char, for readability */
+-#define CNTRL(uc_char) ((uc_char) - 0x40)
+-
++#define CNTRL(uc_char) ((uc_char) & ~(0x40))
++#define APPLE_META(uc_char) ((uc_char) | 0xA0)
++#define APPLE_ALT_DEL 0x88
+ 
+ int cmdedit_read_input(char *prompt, char command[BUFSIZ])
+ {
+@@ -1445,6 +1484,19 @@
+ 			goto_new_line();
+ 			break_out = 1;
+ 			break;
++		/* Apple-xx on Mac OS X generates (xx | 0xA0), except for Apple-backspace */
++		case APPLE_META('B'): 
++			alt_b();
++			break; 
++		case APPLE_META('F'): 
++			alt_f();
++			break; 
++		case APPLE_META('D'): 
++			alt_d();
++			break; 
++		case APPLE_ALT_DEL:
++			alt_backspace();
++			break; 
+ 		case CNTRL('A'):
+ 		case VICMD('0'):
+ 			/* Control-a -- Beginning of line */
+@@ -1716,7 +1768,21 @@
+ 				if(dummy != '~')
+ 					c = 0;
+ 			}
+-			switch (c) {
++			switch (c) { 
++				/* Alt-xx on Linux generates a 2-byte sequence '1b xx' */
++				case 'b': 
++					alt_b();
++					break; 
++				case 'f': 
++					alt_f();
++					break; 
++				case 'd': 
++					alt_d();
++					break; 
++				case DEL: 
++					alt_backspace();
++					break; 
++
+ #ifdef CONFIG_FEATURE_COMMAND_TAB_COMPLETION
+ 			case '\t':                      /* Alt-Tab */
