@@ -1,0 +1,11 @@
+file /bootsh ramdisk/bootsh 755 0 0
+slink /init bootsh 777 0 0
+file /kexec ramdisk/kexec 755 0 0
+file /MERAKI_BUILD ramdisk/MERAKI_BUILD 755 0 0
+dir /bootroot 755 0 0
+dir /dev 755 0 0
+slink /lib bootroot/lib 777 0 0
+slink /etc bootroot/etc 777 0 0
+slink /usr bootroot/usr 777 0 0
+slink /sbin bootroot/sbin 777 0 0
+slink /bin bootroot/bin 777 0 0
