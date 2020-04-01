@@ -17,10 +17,10 @@ The RedBoot binary can be found at `arch/mips/vcoreiii/loader/loader.bin` howeve
 You can view the assembly for RedBoot in `arch/mips/vcoreiii/loader/head.S`
 
 I have modified the bootloader and am providing 2 modified versions:
-# Without CRC verification (nocrc)
-## Changed `bnez    s0,0x990` to a `noop`
-# Without CRC verification AND without size verification to allow booting kernels larger than 3932160 bytes (nocrc-sz)
-## Changed `bltz    t0,0x990` to a `noop`
+1. Without CRC verification (nocrc)
+    1. Changed `bnez    s0,0x990` to a `noop`
+1. Without CRC verification AND without size verification to allow booting kernels larger than 3932160 bytes (nocrc-sz)
+    1. Changed `bltz    t0,0x990` to a `noop`
 
 The no-CRC and no-size version of the bootloader is sufficient to allow you to boot 3.18.123 directly from SPI.
 
