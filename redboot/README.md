@@ -26,16 +26,22 @@ The no-CRC and no-size version of the bootloader is sufficient to allow you to b
 
 ## Compressed kernels
 
-Compressed kernels do not boot. Looking at the kernel decompressor stub, it seems the bootloader is supposed to pass arguments to the kernel in registers s0, s1, s2, and s3:
-```
-start:
-        /* Save boot rom start args */
-        move    s0, a0
-        move    s1, a1
-        move    s2, a2
-        move    s3, a3
-```
+I have not been able to get compressed kernels to boot.
 
-RedBoot has part of the CRC in s1, and I don't know the contents of s0, s2, or s3 when it jumps into the Linux kernel.
+If you wish to try, you will need to add `select SYS_SUPPORTS_ZBOOT` to the `config MERAKI_MSXX` section in `arch/mips/Kconfig`
 
-If anyone knows the expected contents of s0, s1, s2, and s3 when the bootloader jumps to the kernel entry address, please submit a PR.
+The kernel decompressor appears to be at the start of the data region, so the kernel entry point and load address should be the same: 0x80100000
+You can automate this by adding the following to `arch/mips/boot/compressed/Makefile`:
+```
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -68,6 +68,8 @@ hostprogs-y := calc_vmlinuz_load_addr
+ 
+ ifeq ($(CONFIG_MACH_JZ4740),y)
+ VMLINUZ_LOAD_ADDRESS := 0x80600000
++else ifeq ($(CONFIG_MERAKI_MSXX),y)
++VMLINUZ_LOAD_ADDRESS := 0x80100000
+ else
+ VMLINUZ_LOAD_ADDRESS = $(shell $(obj)/calc_vmlinuz_load_addr \
+                $(obj)/vmlinux.bin $(VMLINUX_LOAD_ADDRESS))
+```
