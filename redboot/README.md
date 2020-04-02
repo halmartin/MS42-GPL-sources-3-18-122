@@ -30,7 +30,8 @@ I have not been able to get compressed kernels to boot.
 
 If you wish to try, you will need to add `select SYS_SUPPORTS_ZBOOT` to the `config MERAKI_MSXX` section in `arch/mips/Kconfig`
 
-The kernel decompressor appears to be at the start of the data region, so the kernel entry point and load address should be the same: 0x80100000
+The kernel decompressor appears to be at the start of the data region, so the kernel entry point and load address should be the same: `0x80100000`
+
 You can automate this by adding the following to `arch/mips/boot/compressed/Makefile`:
 ```
 --- a/arch/mips/boot/compressed/Makefile
